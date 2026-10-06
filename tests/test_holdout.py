@@ -47,3 +47,15 @@ def test_committed_ledger_shows_each_run_used_once():
     ledger = json.loads(paths.LEDGER.read_text())
     unforced = [e["run_id"] for e in ledger if not e["forced"]]
     assert unforced and len(unforced) == len(set(unforced))
+
+
+def test_ledger_hashes_match_committed_predictions():
+    """The predictions evaluated on the holdout are exactly the ones in the repo, not regenerated since."""
+    import hashlib
+    import subprocess
+    for e in json.loads(paths.LEDGER.read_text()):
+        rel = f"runs/{e['run_id']}/predictions.jsonl"
+        # compare with the committed file, so a local re-run (which restamps code versions) cannot mask a change
+        blob = subprocess.run(["git", "show", f"HEAD:{rel}"], cwd=paths.ROOT, capture_output=True).stdout
+        assert blob, f"{rel} is not committed"
+        assert e["predictions_sha256"] == hashlib.sha256(blob).hexdigest(), e["run_id"]
