@@ -189,6 +189,27 @@ change. Throughput is not the constraint either: at the measured 13.6 calls/s wi
 - **One leak, disclosed.** An eight-call smoke test of the first question version included two
   holdout calls (see `METHODOLOGY.md`); the changes that followed were generic.
 
+## Engineering the agent
+
+The repository is set up for continued development with a coding agent (Claude Code), and the
+rules that matter are enforced by tooling rather than left to good intentions:
+
+- **`CLAUDE.md`**: the working agreement (plan first, small steps, tests before code, never weaken
+  a test, the model extracts and code decides, only `calleval/extract/jev.py` may call a model, the
+  holdout is read through one function) and the project facts (commands, data contract, layout).
+- **`.claude/settings.json`** hooks: before any Edit/Write, `.claude/hooks/guard.py` blocks changes
+  to the generated golden set, holdout, answer key, holdout ledger and acceptance tests (exit 2
+  with the reason); after every edit, `.claude/hooks/run_tests.py` runs the suite and surfaces
+  failures. `tests/test_guard.py` checks the guard's exit codes.
+- **`tests/test_architecture.py`** turns the agreement into assertions: one module imports the
+  model SDK, one function opens the holdout, scoring never imports an extractor.
+- **`.claude/agents/reviewer.md`**: a read-only, fresh-context reviewer that checks a diff against
+  the plan, the contract and holdout discipline, and may only add tests to `tests/test_edge_cases.py`.
+- **`.claude/commands/`**: `/checkin` (status from the plan and a test run) and `/next` (take the
+  next unticked step, plan it, wait for go).
+- **`PLAN.md`** (steps with the test that proves each, ticked only when it passes, open work at the
+  end) and **`DECISIONS.md`** (alternative considered, chosen, why).
+
 ## Repository layout
 
 ```
@@ -198,8 +219,11 @@ data/                synthetic calls, surveys, golden dev set, sealed holdout, s
 cache/               Jev responses (answers and timings only, no credentials)
 runs/                predictions and summaries per run, dev report, holdout ledger
 docs/                static web demo (index.html, app.js, style.css, data/demo.json)
-tests/               pytest: determinism, span integrity, gate, holdout guard, calibration, schema
+tests/               pytest: determinism, span integrity, gate, holdout guard, calibration, schema,
+                     architecture rules, edit guard
 METHODOLOGY.md       how the evaluation was run, including what went wrong
+PLAN.md, DECISIONS.md  build plan with proving tests; design decisions and alternatives
+CLAUDE.md, .claude/  agent working agreement, hooks, reviewer subagent, commands
 ```
 
 ## License
