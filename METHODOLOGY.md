@@ -101,7 +101,7 @@ between mean predicted and mean observed survey score across the five bands, mea
 
 Calibration helps where the raw scale is off (Jev) and hurts where it is already close (rules):
 with 83 answers the isotonic map has few points per band and adds variance. The observed survey
-mean is 3.40; reweighted for response bias it is 3.54, which is the size of the bias a naive
+mean is 3.40; reweighted for response bias it is 3.54 with the Jev scores' weights (3.61 with the rules'), which is the size of the bias a naive
 average would carry onto a dashboard.
 
 ## 6. Diagnostics against the latent truth (synthetic only)

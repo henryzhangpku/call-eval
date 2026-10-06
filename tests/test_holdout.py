@@ -26,6 +26,14 @@ def test_holdout_runs_once_then_refuses(sandbox):
     assert len(ledger) == 1 and len(ledger[0]["predictions_sha256"]) == 64
 
 
+def test_renamed_copy_of_a_used_run_is_refused(sandbox):
+    evaluate_holdout("offline")
+    (sandbox / "offline-renamed").mkdir()
+    shutil.copy(sandbox / "offline" / "predictions.jsonl", sandbox / "offline-renamed" / "predictions.jsonl")
+    with pytest.raises(HoldoutAlreadyUsed, match="same predictions"):
+        evaluate_holdout("offline-renamed")
+
+
 def test_forced_rerun_is_recorded(sandbox):
     evaluate_holdout("offline")
     again = evaluate_holdout("offline", force=True)

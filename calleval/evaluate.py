@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 from datetime import datetime, timezone
 
@@ -217,19 +218,40 @@ def read_ledger() -> list[dict]:
     return []
 
 
+def holdout_fingerprint(preds: dict[str, dict]) -> str:
+    """Hash of what the holdout would score (status, scores, sentiment per call), ignoring version stamps.
+
+    A renamed or copied run, or a re-run that only restamps versions, has the same fingerprint.
+    """
+    rows = [[cid, p["status"], p.get("csat"), p.get("sentiment"), p.get("satisfaction_raw"), p.get("churn_risk")]
+            for cid, p in sorted(preds.items())]
+    return hashlib.sha256(json.dumps(rows).encode("utf-8")).hexdigest()
+
+
+def _entry_fingerprint(e: dict) -> str | None:
+    if e.get("fingerprint"):
+        return e["fingerprint"]
+    try:  # ledger entries written before fingerprints existed: recompute from that run's predictions
+        return holdout_fingerprint(load_predictions(e["run_id"]))
+    except FileNotFoundError:
+        return None
+
+
 def evaluate_holdout(run_id: str, force: bool = False) -> dict:
     ledger = read_ledger()
-    prior = [e for e in ledger if e["run_id"] == run_id]
+    preds = load_predictions(run_id)
+    fp = holdout_fingerprint(preds)
+    prior = [e for e in ledger if e["run_id"] == run_id or _entry_fingerprint(e) == fp]
     if prior and not force:
+        same = "" if prior[0]["run_id"] == run_id else f" under the name '{prior[0]['run_id']}' (same predictions)"
         raise HoldoutAlreadyUsed(
-            f"the sealed holdout was already used for run '{run_id}' at {prior[0]['timestamp']} "
+            f"the sealed holdout was already used for run '{run_id}'{same} at {prior[0]['timestamp']} "
             f"(predictions sha256 {prior[0]['predictions_sha256'][:12]}...). Re-using it turns it into a dev set. "
             "Pass --force only if you accept that; the forced run is recorded in the ledger.")
     gold = load_golden(paths.GOLDEN_HOLDOUT)
-    preds = load_predictions(run_id)
     res = score_run(preds, gold, load_truth())
     entry = {"run_id": run_id, "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-             "predictions_sha256": predictions_hash(run_id), "code_version": code_version(),
+             "predictions_sha256": predictions_hash(run_id), "fingerprint": fp, "code_version": code_version(),
              "versions": next(iter(preds.values()))["versions"], "forced": bool(prior), "n_prior_uses": len(prior),
              "annotator_ceiling": annotator_ceiling(gold), "result": res}
     ledger.append(entry)
