@@ -182,9 +182,12 @@ def summarize(run_id, extractor, lines, wall_extract, wall_total, cal, versions)
         }
         live = [r for r in log if not r["cached"]]
         if live:
+            rps = len(live) / max(wall_extract, 1e-9)
             s["live"] = {"live_requests": len(live), "concurrency": extractor.concurrency,
-                         "wall_seconds": round(wall_extract, 2),
-                         "calls": len(call_lat), "throughput_calls_per_s": round(len(call_lat) / wall_extract, 2),
+                         "wall_seconds": round(wall_extract, 2), "requests_per_s": round(rps, 1),
+                         "requests_per_call": s["jev"]["requests_per_call"],
+                         # some requests may have been cache hits, so throughput is derived from live requests only
+                         "throughput_calls_per_s": round(rps / max(s["jev"]["requests_per_call"], 1e-9), 2),
                          "request_latency_ms_p50": pct([r["latency_ms"] for r in live], 50),
                          "request_latency_ms_p95": pct([r["latency_ms"] for r in live], 95)}
     if cal:

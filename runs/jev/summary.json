@@ -35,10 +35,11 @@
   "live_requests": 478,
   "concurrency": 6,
   "wall_seconds": 12.69,
-  "calls": 347,
-  "throughput_calls_per_s": 27.34,
+  "throughput_calls_per_s": 13.55,
   "request_latency_ms_p50": 139.6,
-  "request_latency_ms_p95": 204.0
+  "request_latency_ms_p95": 204.0,
+  "requests_per_s": 37.7,
+  "requests_per_call": 2.78
  },
  "calibration": {
   "version": "iso-v1",

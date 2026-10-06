@@ -93,5 +93,5 @@ def reason_counts(queue):
     c = defaultdict(int)
     for item in queue:
         for reason in item["reasons"]:
-            c[reason.split(":")[0]] += 1
+            c[reason.split(":")[0].removesuffix(" on")] += 1
     return dict(sorted(c.items(), key=lambda kv: -kv[1]))

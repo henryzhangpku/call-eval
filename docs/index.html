@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Call Experience Evaluation</title>
+<meta name="description" content="Post-call customer experience evaluation for contact-centre transcripts: a model extracts typed facts with evidence spans, code scores them, and every score is calibrated against surveys. Synthetic demo data.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 5h16v10H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 10h2M12 10h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </span>
+      <span>call-eval</span>
+    </div>
+    <nav class="nav" aria-label="Sections">
+      <a href="#measured">Measured</a>
+      <a href="#quadrant">Churn risk</a>
+      <a href="#explorer">Calls</a>
+      <a href="#calibration">Calibration</a>
+      <a href="#review">Review</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <p class="eyebrow">Post-call customer experience evaluation &middot; lending and servicing calls</p>
+    <h1>Every call scored for satisfaction and sentiment, with the transcript lines that justify the score.</h1>
+    <p class="lede">A model reads each transcript and extracts typed facts: was each request resolved, how hard did the caller have to work, what did they say they felt. Code turns those facts into a 1&ndash;5 satisfaction score and a happy / mild / not happy sentiment, calibrates the score against post-call surveys, and keeps the evidence for every number.</p>
+    <p class="synthetic-note"><strong>All data on this page is synthetic.</strong> 400 generated calls, simulated annotators and simulated surveys. The numbers measure the system on that data, not on real callers.</p>
+  </section>
+
+  <section class="wrap" id="measured" aria-labelledby="measured-h">
+    <h2 id="measured-h">What it does, measured</h2>
+    <div class="tiles" id="tiles"></div>
+    <div class="pipeline" aria-label="Pipeline">
+      <div class="step"><b>Quality gate</b><span>speaker labels, ASR confidence, length, dropped calls</span></div>
+      <div class="arrow" aria-hidden="true"></div>
+      <div class="step"><b>Segment by intent</b><span>one call, several requests</span></div>
+      <div class="arrow" aria-hidden="true"></div>
+      <div class="step accent"><b>Extract</b><span>typed fields + evidence spans (Jev or rules)</span></div>
+      <div class="arrow" aria-hidden="true"></div>
+      <div class="step"><b>Score in code</b><span>satisfaction = f(resolved, effort); sentiment = g(expressed cues)</span></div>
+      <div class="arrow" aria-hidden="true"></div>
+      <div class="step"><b>Calibrate</b><span>isotonic fit to surveys, bias-weighted</span></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="agreement" aria-labelledby="agree-h">
+    <h2 id="agree-h">Agreement with humans, against the human ceiling</h2>
+    <p class="section-lede">Two annotators labelled 300 calls. How often they agree with each other is the ceiling: a system that agrees with a human as well as humans agree with each other has nothing left to gain from more prompt tuning. 200 calls were used to iterate; 100 were sealed and evaluated once per system (the ledger refuses a second look).</p>
+    <div class="seg" role="tablist" id="splitTabs">
+      <button role="tab" aria-selected="true" data-split="dev">Dev (200)</button>
+      <button role="tab" aria-selected="false" data-split="holdout">Sealed holdout (100)</button>
+    </div>
+    <div class="grid2">
+      <figure class="card">
+        <figcaption><b>Satisfaction 1&ndash;5</b> <span class="muted">quadratic-weighted kappa, 95% bootstrap CI</span></figcaption>
+        <div id="agreeCsat"></div>
+      </figure>
+      <figure class="card">
+        <figcaption><b>Sentiment</b> <span class="muted">Cohen&rsquo;s kappa, 95% bootstrap CI</span></figcaption>
+        <div id="agreeSent"></div>
+      </figure>
+    </div>
+    <p class="fine" id="agreeNote"></p>
+    <details class="card details">
+      <summary>Confusion matrices and the noise floor</summary>
+      <div class="grid2" id="confusions"></div>
+      <div id="noise" class="fine"></div>
+    </details>
+  </section>
+
+  <section class="wrap" id="quadrant" aria-labelledby="quad-h">
+    <h2 id="quad-h">The headline: satisfied is not the same as polite</h2>
+    <p class="section-lede">Satisfaction comes from resolution and effort; sentiment comes from what the caller expressed. Scoring them from separate evidence exposes the cell a single blended score hides: callers whose problem was not solved but who stayed polite. They do not complain on the call, and they are the churn risk.</p>
+    <div class="grid2 quad-grid">
+      <figure class="card">
+        <figcaption><b>Calls by satisfaction band and expressed sentiment</b> <span class="muted" id="quadBackend"></span></figcaption>
+        <div id="quadChart"></div>
+      </figure>
+      <div class="card churn-list">
+        <h3>Churn-risk calls <span class="count" id="churnCount"></span></h3>
+        <p class="muted small">Low satisfaction (1&ndash;2), sentiment happy or mild. Click one to open it.</p>
+        <ul id="churnList" class="chips"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="explorer" aria-labelledby="exp-h">
+    <h2 id="exp-h">Call explorer</h2>
+    <p class="section-lede">Pick a call to read the transcript with its evidence highlighted, and the one-line explanation code generated for each score.</p>
+    <div class="explorer card">
+      <div class="exp-side">
+        <div class="filters">
+          <label class="sr" for="callFilter">Filter calls</label>
+          <select id="callFilter">
+            <option value="all">All calls</option>
+            <option value="churn">Churn risk</option>
+            <option value="review">In review queue</option>
+            <option value="dev">Dev set (has human labels)</option>
+            <option value="multi">Multi-intent</option>
+            <option value="disagree">Backends disagree</option>
+          </select>
+          <div class="seg small" role="tablist" id="backendTabs"></div>
+        </div>
+        <ul class="call-list" id="callList" aria-label="Calls"></ul>
+      </div>
+      <div class="exp-main" id="callDetail" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="calibration" aria-labelledby="cal-h">
+    <h2 id="cal-h">Calibration: a score is a ranking until it is anchored</h2>
+    <p class="section-lede">The raw score is fit to post-call survey answers with a monotone (isotonic) map. Unhappy callers answer surveys more often, so each answer is weighted by the inverse response rate of its score band. Error is measured out of fold, never on the calls used to fit.</p>
+    <div class="grid2">
+      <figure class="card">
+        <figcaption><b>Reliability diagram</b> <span class="muted">mean predicted vs mean survey score, per band</span></figcaption>
+        <div class="seg small" role="tablist" id="calTabs"></div>
+        <div id="relChart"></div>
+      </figure>
+      <div class="card" id="calFacts"></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="review" aria-labelledby="rev-h">
+    <h2 id="rev-h">Human review queue</h2>
+    <p class="section-lede">Bad transcripts produce confident garbage, so they are never scored. Scored calls with low extraction confidence, or where the agent claimed a fix the caller disputed, are flagged for a look.</p>
+    <div class="grid2">
+      <div class="card" id="reasonCounts"></div>
+      <div class="card scroll-card"><table class="tbl" id="reviewTable"><caption class="sr">Review queue</caption></table></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="rollups" aria-labelledby="roll-h">
+    <h2 id="roll-h">Roll-ups</h2>
+    <div class="grid2">
+      <div class="card scroll-card"><h3>By agent</h3><table class="tbl" id="agentTable"></table></div>
+      <div class="card scroll-card"><h3>By intent</h3><table class="tbl" id="intentTable"></table></div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p id="versions" class="fine"></p>
+  <p class="fine">Synthetic data. Jev latency and token counts were measured against the live API; replays read them from the committed cache. Prices change: verify on the day. MIT licence.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
