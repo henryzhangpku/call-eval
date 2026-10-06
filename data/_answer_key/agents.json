@@ -1,0 +1,74 @@
+[
+ {
+  "id": "A01",
+  "name": "Alex",
+  "skill": 0.547,
+  "gaming": 0.03
+ },
+ {
+  "id": "A02",
+  "name": "Jordan",
+  "skill": 0.673,
+  "gaming": 0.03
+ },
+ {
+  "id": "A03",
+  "name": "Sam",
+  "skill": 0.7,
+  "gaming": 0.03
+ },
+ {
+  "id": "A04",
+  "name": "Riley",
+  "skill": 0.643,
+  "gaming": 0.5
+ },
+ {
+  "id": "A05",
+  "name": "Morgan",
+  "skill": 0.799,
+  "gaming": 0.03
+ },
+ {
+  "id": "A06",
+  "name": "Casey",
+  "skill": 0.745,
+  "gaming": 0.03
+ },
+ {
+  "id": "A07",
+  "name": "Taylor",
+  "skill": 0.748,
+  "gaming": 0.03
+ },
+ {
+  "id": "A08",
+  "name": "Jamie",
+  "skill": 0.679,
+  "gaming": 0.03
+ },
+ {
+  "id": "A09",
+  "name": "Drew",
+  "skill": 0.791,
+  "gaming": 0.5
+ },
+ {
+  "id": "A10",
+  "name": "Avery",
+  "skill": 0.618,
+  "gaming": 0.03
+ },
+ {
+  "id": "A11",
+  "name": "Quinn",
+  "skill": 0.415,
+  "gaming": 0.03
+ },
+ {
+  "id": "A12",
+  "name": "Reese",
+  "skill": 0.691,
+  "gaming": 0.03
+ }
+]
