@@ -1,0 +1,159 @@
+{
+ "run_id": "jev",
+ "versions": {
+  "code_version": "0.1.0+0c77a46.dirty",
+  "extractor_backend": "jev",
+  "model_id": "jev-1.13.0",
+  "question_version": "q-v3",
+  "scoring_version": "score-v1",
+  "gate_version": "gate-v1",
+  "segmenter_version": "seg-v1",
+  "calibration_version": "iso-v1"
+ },
+ "calls": 400,
+ "scored": 347,
+ "review": 53,
+ "gate_failures": 53,
+ "wall_seconds_extract_and_score": 12.737,
+ "jev": {
+  "requests": 963,
+  "live_requests": 478,
+  "request_latency_ms_p50": 140.1,
+  "request_latency_ms_p95": 199.8,
+  "call_latency_ms_p50": 293.2,
+  "call_latency_ms_p95": 419.3,
+  "requests_per_call": 2.78,
+  "input_tokens_per_call": 4922.8,
+  "cost_per_call_usd": 0.0002068,
+  "cost_per_20k_calls_usd": 4.14,
+  "price_per_m_input_usd": 0.042,
+  "price_checked": "2026-10-06",
+  "latency_source": "replayed from cache (latencies as measured at capture)",
+  "errors": 0
+ },
+ "live": {
+  "live_requests": 478,
+  "concurrency": 6,
+  "wall_seconds": 12.69,
+  "calls": 347,
+  "throughput_calls_per_s": 27.34,
+  "request_latency_ms_p50": 139.6,
+  "request_latency_ms_p95": 204.0
+ },
+ "calibration": {
+  "version": "iso-v1",
+  "n_survey_calls": 83,
+  "response_rate_by_bucket": {
+   "0": 0.483,
+   "1": 0.346,
+   "2": 0.339,
+   "3": 0.232,
+   "4": 0.315
+  },
+  "ece_raw": 0.228,
+  "ece_calibrated_oof": 0.141,
+  "ece_calibrated_oof_unweighted": 0.157,
+  "reliability_raw": [
+   {
+    "bin": 1,
+    "n": 5,
+    "mean_pred": 1.181,
+    "mean_obs": 1.6
+   },
+   {
+    "bin": 2,
+    "n": 18,
+    "mean_pred": 2.007,
+    "mean_obs": 2.167
+   },
+   {
+    "bin": 3,
+    "n": 20,
+    "mean_pred": 2.895,
+    "mean_obs": 2.55
+   },
+   {
+    "bin": 4,
+    "n": 8,
+    "mean_pred": 4.08,
+    "mean_obs": 4.5
+   },
+   {
+    "bin": 5,
+    "n": 32,
+    "mean_pred": 4.756,
+    "mean_obs": 4.641
+   }
+  ],
+  "reliability_calibrated": [
+   {
+    "bin": 1,
+    "n": 3,
+    "mean_pred": 1.324,
+    "mean_obs": 2.412
+   },
+   {
+    "bin": 2,
+    "n": 23,
+    "mean_pred": 1.994,
+    "mean_obs": 1.98
+   },
+   {
+    "bin": 3,
+    "n": 15,
+    "mean_pred": 2.859,
+    "mean_obs": 2.667
+   },
+   {
+    "bin": 4,
+    "n": 10,
+    "mean_pred": 4.212,
+    "mean_obs": 4.387
+   },
+   {
+    "bin": 5,
+    "n": 32,
+    "mean_pred": 4.71,
+    "mean_obs": 4.6
+   }
+  ],
+  "mapping": {
+   "xs": [
+    1.0,
+    1.2335,
+    1.5842,
+    2.3882,
+    2.788,
+    2.842,
+    3.0052,
+    3.113,
+    3.315,
+    3.456,
+    3.7,
+    3.9905,
+    4.1,
+    4.5234,
+    5.0
+   ],
+   "ys": [
+    1.5,
+    1.5,
+    1.7022,
+    2.1467,
+    3.0,
+    3.0,
+    3.0,
+    3.0,
+    3.0,
+    4.0,
+    4.0,
+    4.5,
+    4.5,
+    4.5164,
+    4.8571
+   ]
+  },
+  "survey_mean_observed": 3.398,
+  "survey_mean_weighted": 3.54
+ }
+}

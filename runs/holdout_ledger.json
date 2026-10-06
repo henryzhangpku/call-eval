@@ -1,0 +1,316 @@
+[
+ {
+  "run_id": "offline",
+  "timestamp": "2026-10-06T13:40:01Z",
+  "predictions_sha256": "ad0db3f2d69226cb84148b6b55b0fcbecce05582cb6643676d681c647965a0e0",
+  "code_version": "0.1.0+0c77a46.dirty",
+  "versions": {
+   "code_version": "0.1.0+nogit.dirty",
+   "extractor_backend": "offline",
+   "model_id": "rules-v1",
+   "question_version": "rules-v1",
+   "scoring_version": "score-v1",
+   "gate_version": "gate-v1",
+   "segmenter_version": "seg-v1",
+   "calibration_version": "iso-v1"
+  },
+  "forced": false,
+  "n_prior_uses": 0,
+  "annotator_ceiling": {
+   "n": 100,
+   "csat_weighted_kappa": 0.869,
+   "csat_weighted_kappa_ci": [
+    0.812,
+    0.914
+   ],
+   "csat_exact": 0.62,
+   "csat_within_one": 0.94,
+   "sentiment_kappa": 0.586,
+   "sentiment_kappa_ci": [
+    0.445,
+    0.708
+   ],
+   "sentiment_exact": 0.74
+  },
+  "result": {
+   "n_golden": 100,
+   "n_scored": 84,
+   "coverage": 0.84,
+   "csat_weighted_kappa_vs_adjudicated": 0.848,
+   "csat_weighted_kappa_vs_adjudicated_ci": [
+    0.781,
+    0.896
+   ],
+   "csat_weighted_kappa_vs_annotators": 0.751,
+   "csat_calibrated_weighted_kappa_vs_adjudicated": 0.874,
+   "csat_exact_vs_adjudicated": 0.595,
+   "csat_within_one_vs_adjudicated": 0.952,
+   "csat_mae_vs_adjudicated": 0.452,
+   "sentiment_kappa_vs_adjudicated": 0.871,
+   "sentiment_kappa_vs_adjudicated_ci": [
+    0.782,
+    0.962
+   ],
+   "sentiment_kappa_vs_annotators": 0.672,
+   "sentiment_exact_vs_adjudicated": 0.917,
+   "confusion_csat": {
+    "labels": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      4,
+      7,
+      3,
+      0,
+      0
+     ],
+     [
+      1,
+      5,
+      6,
+      0,
+      0
+     ],
+     [
+      0,
+      1,
+      8,
+      4,
+      0
+     ],
+     [
+      0,
+      0,
+      1,
+      15,
+      7
+     ],
+     [
+      0,
+      0,
+      1,
+      3,
+      18
+     ]
+    ]
+   },
+   "confusion_sentiment": {
+    "labels": [
+     "happy",
+     "mild",
+     "not_happy"
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      33,
+      0,
+      0
+     ],
+     [
+      5,
+      27,
+      2
+     ],
+     [
+      0,
+      0,
+      17
+     ]
+    ]
+   },
+   "churn_quadrant": {
+    "true": 15,
+    "flagged": 8,
+    "hit": 8,
+    "precision": 1.0,
+    "recall": 0.533
+   },
+   "diagnostics_vs_latent_truth": {
+    "intent_precision": 1.0,
+    "intent_recall": 0.992,
+    "resolved_accuracy": 0.933,
+    "resolved_accuracy_by_intent": {
+     "balance": 0.933,
+     "payment": 1.0,
+     "escrow": 0.889,
+     "payoff": 1.0,
+     "hardship": 0.917,
+     "dispute": 1.0,
+     "late_fee": 0.842
+    },
+    "effort_exact_accuracy": {
+     "repeats": 1.0,
+     "transfers": 1.0,
+     "holds": 1.0,
+     "callback": 1.0
+    }
+   }
+  }
+ },
+ {
+  "run_id": "jev",
+  "timestamp": "2026-10-06T13:40:01Z",
+  "predictions_sha256": "ee996fe16325dab75d724b0e2c6c83407214e4449a5e2d9081adb3c00631f486",
+  "code_version": "0.1.0+0c77a46.dirty",
+  "versions": {
+   "code_version": "0.1.0+0c77a46.dirty",
+   "extractor_backend": "jev",
+   "model_id": "jev-1.13.0",
+   "question_version": "q-v3",
+   "scoring_version": "score-v1",
+   "gate_version": "gate-v1",
+   "segmenter_version": "seg-v1",
+   "calibration_version": "iso-v1"
+  },
+  "forced": false,
+  "n_prior_uses": 0,
+  "annotator_ceiling": {
+   "n": 100,
+   "csat_weighted_kappa": 0.869,
+   "csat_weighted_kappa_ci": [
+    0.812,
+    0.914
+   ],
+   "csat_exact": 0.62,
+   "csat_within_one": 0.94,
+   "sentiment_kappa": 0.586,
+   "sentiment_kappa_ci": [
+    0.445,
+    0.708
+   ],
+   "sentiment_exact": 0.74
+  },
+  "result": {
+   "n_golden": 100,
+   "n_scored": 85,
+   "coverage": 0.85,
+   "csat_weighted_kappa_vs_adjudicated": 0.854,
+   "csat_weighted_kappa_vs_adjudicated_ci": [
+    0.782,
+    0.911
+   ],
+   "csat_weighted_kappa_vs_annotators": 0.761,
+   "csat_calibrated_weighted_kappa_vs_adjudicated": 0.811,
+   "csat_exact_vs_adjudicated": 0.624,
+   "csat_within_one_vs_adjudicated": 0.941,
+   "csat_mae_vs_adjudicated": 0.435,
+   "sentiment_kappa_vs_adjudicated": 0.82,
+   "sentiment_kappa_vs_adjudicated_ci": [
+    0.699,
+    0.911
+   ],
+   "sentiment_kappa_vs_annotators": 0.641,
+   "sentiment_exact_vs_adjudicated": 0.882,
+   "confusion_csat": {
+    "labels": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      7,
+      5,
+      2,
+      0,
+      0
+     ],
+     [
+      0,
+      5,
+      7,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      7,
+      3,
+      3
+     ],
+     [
+      0,
+      0,
+      2,
+      14,
+      7
+     ],
+     [
+      0,
+      0,
+      0,
+      3,
+      20
+     ]
+    ]
+   },
+   "confusion_sentiment": {
+    "labels": [
+     "happy",
+     "mild",
+     "not_happy"
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      29,
+      0,
+      4
+     ],
+     [
+      5,
+      29,
+      1
+     ],
+     [
+      0,
+      0,
+      17
+     ]
+    ]
+   },
+   "churn_quadrant": {
+    "true": 15,
+    "flagged": 6,
+    "hit": 6,
+    "precision": 1.0,
+    "recall": 0.4
+   },
+   "diagnostics_vs_latent_truth": {
+    "intent_precision": 0.853,
+    "intent_recall": 1.0,
+    "resolved_accuracy": 0.885,
+    "resolved_accuracy_by_intent": {
+     "balance": 1.0,
+     "payment": 0.833,
+     "escrow": 0.833,
+     "payoff": 1.0,
+     "hardship": 0.833,
+     "dispute": 1.0,
+     "late_fee": 0.737
+    },
+    "effort_exact_accuracy": {
+     "repeats": 0.951,
+     "transfers": 1.0,
+     "holds": 0.91,
+     "callback": 1.0
+    }
+   }
+  }
+ }
+]

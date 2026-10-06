@@ -1,0 +1,724 @@
+{
+ "split": "dev",
+ "annotator_ceiling": {
+  "n": 200,
+  "csat_weighted_kappa": 0.846,
+  "csat_weighted_kappa_ci": [
+   0.799,
+   0.887
+  ],
+  "csat_exact": 0.58,
+  "csat_within_one": 0.945,
+  "sentiment_kappa": 0.631,
+  "sentiment_kappa_ci": [
+   0.529,
+   0.72
+  ],
+  "sentiment_exact": 0.765
+ },
+ "runs": {
+  "jev": {
+   "n_golden": 200,
+   "n_scored": 173,
+   "coverage": 0.865,
+   "csat_weighted_kappa_vs_adjudicated": 0.858,
+   "csat_weighted_kappa_vs_adjudicated_ci": [
+    0.806,
+    0.9
+   ],
+   "csat_weighted_kappa_vs_annotators": 0.76,
+   "csat_calibrated_weighted_kappa_vs_adjudicated": 0.839,
+   "csat_exact_vs_adjudicated": 0.653,
+   "csat_within_one_vs_adjudicated": 0.971,
+   "csat_mae_vs_adjudicated": 0.376,
+   "sentiment_kappa_vs_adjudicated": 0.784,
+   "sentiment_kappa_vs_adjudicated_ci": [
+    0.701,
+    0.858
+   ],
+   "sentiment_kappa_vs_annotators": 0.565,
+   "sentiment_exact_vs_adjudicated": 0.861,
+   "confusion_csat": {
+    "labels": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      4,
+      5,
+      1,
+      0,
+      0
+     ],
+     [
+      2,
+      18,
+      8,
+      0,
+      0
+     ],
+     [
+      0,
+      3,
+      19,
+      4,
+      0
+     ],
+     [
+      0,
+      3,
+      9,
+      23,
+      15
+     ],
+     [
+      0,
+      0,
+      1,
+      9,
+      49
+     ]
+    ]
+   },
+   "confusion_sentiment": {
+    "labels": [
+     "happy",
+     "mild",
+     "not_happy"
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      69,
+      0,
+      6
+     ],
+     [
+      15,
+      47,
+      3
+     ],
+     [
+      0,
+      0,
+      33
+     ]
+    ]
+   },
+   "churn_quadrant": {
+    "true": 21,
+    "flagged": 16,
+    "hit": 14,
+    "precision": 0.875,
+    "recall": 0.667
+   },
+   "diagnostics_vs_latent_truth": {
+    "intent_precision": 0.936,
+    "intent_recall": 1.0,
+    "resolved_accuracy": 0.918,
+    "resolved_accuracy_by_intent": {
+     "balance": 1.0,
+     "payment": 0.87,
+     "escrow": 0.955,
+     "payoff": 0.951,
+     "hardship": 0.686,
+     "dispute": 0.956,
+     "late_fee": 0.967
+    },
+    "effort_exact_accuracy": {
+     "repeats": 0.966,
+     "transfers": 1.0,
+     "holds": 0.935,
+     "callback": 0.997
+    }
+   }
+  },
+  "jev-qv2": {
+   "n_golden": 200,
+   "n_scored": 173,
+   "coverage": 0.865,
+   "csat_weighted_kappa_vs_adjudicated": 0.838,
+   "csat_weighted_kappa_vs_adjudicated_ci": [
+    0.781,
+    0.885
+   ],
+   "csat_weighted_kappa_vs_annotators": 0.744,
+   "csat_calibrated_weighted_kappa_vs_adjudicated": 0.808,
+   "csat_exact_vs_adjudicated": 0.647,
+   "csat_within_one_vs_adjudicated": 0.954,
+   "csat_mae_vs_adjudicated": 0.399,
+   "sentiment_kappa_vs_adjudicated": 0.725,
+   "sentiment_kappa_vs_adjudicated_ci": [
+    0.648,
+    0.804
+   ],
+   "sentiment_kappa_vs_annotators": 0.538,
+   "sentiment_exact_vs_adjudicated": 0.821,
+   "confusion_csat": {
+    "labels": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      4,
+      5,
+      1,
+      0,
+      0
+     ],
+     [
+      2,
+      18,
+      8,
+      0,
+      0
+     ],
+     [
+      0,
+      2,
+      20,
+      4,
+      0
+     ],
+     [
+      0,
+      4,
+      9,
+      23,
+      14
+     ],
+     [
+      0,
+      0,
+      3,
+      9,
+      47
+     ]
+    ]
+   },
+   "confusion_sentiment": {
+    "labels": [
+     "happy",
+     "mild",
+     "not_happy"
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      68,
+      0,
+      7
+     ],
+     [
+      13,
+      41,
+      11
+     ],
+     [
+      0,
+      0,
+      33
+     ]
+    ]
+   },
+   "churn_quadrant": {
+    "true": 21,
+    "flagged": 14,
+    "hit": 12,
+    "precision": 0.857,
+    "recall": 0.571
+   },
+   "diagnostics_vs_latent_truth": {
+    "intent_precision": 0.933,
+    "intent_recall": 1.0,
+    "resolved_accuracy": 0.914,
+    "resolved_accuracy_by_intent": {
+     "balance": 1.0,
+     "payment": 0.848,
+     "escrow": 0.955,
+     "payoff": 0.951,
+     "hardship": 0.657,
+     "dispute": 0.956,
+     "late_fee": 1.0
+    },
+    "effort_exact_accuracy": {
+     "repeats": 0.966,
+     "transfers": 1.0,
+     "holds": 0.938,
+     "callback": 0.997
+    }
+   }
+  },
+  "jev-qv2-r2": {
+   "n_golden": 200,
+   "n_scored": 173,
+   "coverage": 0.865,
+   "csat_weighted_kappa_vs_adjudicated": 0.837,
+   "csat_weighted_kappa_vs_adjudicated_ci": [
+    0.78,
+    0.884
+   ],
+   "csat_weighted_kappa_vs_annotators": 0.745,
+   "csat_calibrated_weighted_kappa_vs_adjudicated": 0.826,
+   "csat_exact_vs_adjudicated": 0.642,
+   "csat_within_one_vs_adjudicated": 0.954,
+   "csat_mae_vs_adjudicated": 0.405,
+   "sentiment_kappa_vs_adjudicated": 0.725,
+   "sentiment_kappa_vs_adjudicated_ci": [
+    0.648,
+    0.804
+   ],
+   "sentiment_kappa_vs_annotators": 0.538,
+   "sentiment_exact_vs_adjudicated": 0.821,
+   "confusion_csat": {
+    "labels": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      4,
+      5,
+      1,
+      0,
+      0
+     ],
+     [
+      2,
+      18,
+      8,
+      0,
+      0
+     ],
+     [
+      0,
+      3,
+      19,
+      4,
+      0
+     ],
+     [
+      0,
+      4,
+      9,
+      23,
+      14
+     ],
+     [
+      0,
+      0,
+      3,
+      9,
+      47
+     ]
+    ]
+   },
+   "confusion_sentiment": {
+    "labels": [
+     "happy",
+     "mild",
+     "not_happy"
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      68,
+      0,
+      7
+     ],
+     [
+      13,
+      41,
+      11
+     ],
+     [
+      0,
+      0,
+      33
+     ]
+    ]
+   },
+   "churn_quadrant": {
+    "true": 21,
+    "flagged": 14,
+    "hit": 12,
+    "precision": 0.857,
+    "recall": 0.571
+   },
+   "diagnostics_vs_latent_truth": {
+    "intent_precision": 0.936,
+    "intent_recall": 1.0,
+    "resolved_accuracy": 0.911,
+    "resolved_accuracy_by_intent": {
+     "balance": 1.0,
+     "payment": 0.848,
+     "escrow": 0.955,
+     "payoff": 0.951,
+     "hardship": 0.629,
+     "dispute": 0.956,
+     "late_fee": 1.0
+    },
+    "effort_exact_accuracy": {
+     "repeats": 0.969,
+     "transfers": 1.0,
+     "holds": 0.938,
+     "callback": 0.997
+    }
+   }
+  },
+  "jev-r2": {
+   "n_golden": 200,
+   "n_scored": 173,
+   "coverage": 0.865,
+   "csat_weighted_kappa_vs_adjudicated": 0.846,
+   "csat_weighted_kappa_vs_adjudicated_ci": [
+    0.788,
+    0.892
+   ],
+   "csat_weighted_kappa_vs_annotators": 0.744,
+   "csat_calibrated_weighted_kappa_vs_adjudicated": 0.823,
+   "csat_exact_vs_adjudicated": 0.659,
+   "csat_within_one_vs_adjudicated": 0.965,
+   "csat_mae_vs_adjudicated": 0.382,
+   "sentiment_kappa_vs_adjudicated": 0.774,
+   "sentiment_kappa_vs_adjudicated_ci": [
+    0.691,
+    0.85
+   ],
+   "sentiment_kappa_vs_annotators": 0.557,
+   "sentiment_exact_vs_adjudicated": 0.855,
+   "confusion_csat": {
+    "labels": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      4,
+      5,
+      1,
+      0,
+      0
+     ],
+     [
+      2,
+      18,
+      8,
+      0,
+      0
+     ],
+     [
+      0,
+      2,
+      20,
+      4,
+      0
+     ],
+     [
+      1,
+      3,
+      8,
+      23,
+      15
+     ],
+     [
+      0,
+      0,
+      1,
+      9,
+      49
+     ]
+    ]
+   },
+   "confusion_sentiment": {
+    "labels": [
+     "happy",
+     "mild",
+     "not_happy"
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      69,
+      0,
+      6
+     ],
+     [
+      16,
+      46,
+      3
+     ],
+     [
+      0,
+      0,
+      33
+     ]
+    ]
+   },
+   "churn_quadrant": {
+    "true": 21,
+    "flagged": 16,
+    "hit": 14,
+    "precision": 0.875,
+    "recall": 0.667
+   },
+   "diagnostics_vs_latent_truth": {
+    "intent_precision": 0.933,
+    "intent_recall": 1.0,
+    "resolved_accuracy": 0.925,
+    "resolved_accuracy_by_intent": {
+     "balance": 1.0,
+     "payment": 0.87,
+     "escrow": 0.955,
+     "payoff": 0.951,
+     "hardship": 0.743,
+     "dispute": 0.956,
+     "late_fee": 0.967
+    },
+    "effort_exact_accuracy": {
+     "repeats": 0.966,
+     "transfers": 1.0,
+     "holds": 0.938,
+     "callback": 0.997
+    }
+   }
+  },
+  "offline": {
+   "n_golden": 200,
+   "n_scored": 173,
+   "coverage": 0.865,
+   "csat_weighted_kappa_vs_adjudicated": 0.874,
+   "csat_weighted_kappa_vs_adjudicated_ci": [
+    0.833,
+    0.905
+   ],
+   "csat_weighted_kappa_vs_annotators": 0.757,
+   "csat_calibrated_weighted_kappa_vs_adjudicated": 0.876,
+   "csat_exact_vs_adjudicated": 0.647,
+   "csat_within_one_vs_adjudicated": 0.994,
+   "csat_mae_vs_adjudicated": 0.358,
+   "sentiment_kappa_vs_adjudicated": 0.808,
+   "sentiment_kappa_vs_adjudicated_ci": [
+    0.734,
+    0.882
+   ],
+   "sentiment_kappa_vs_annotators": 0.602,
+   "sentiment_exact_vs_adjudicated": 0.879,
+   "confusion_csat": {
+    "labels": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      4,
+      6,
+      0,
+      0,
+      0
+     ],
+     [
+      1,
+      18,
+      9,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      20,
+      6,
+      0
+     ],
+     [
+      0,
+      0,
+      12,
+      22,
+      16
+     ],
+     [
+      0,
+      0,
+      1,
+      10,
+      48
+     ]
+    ]
+   },
+   "confusion_sentiment": {
+    "labels": [
+     "happy",
+     "mild",
+     "not_happy"
+    ],
+    "rows_are": "adjudicated",
+    "cols_are": "predicted",
+    "matrix": [
+     [
+      75,
+      0,
+      0
+     ],
+     [
+      17,
+      44,
+      4
+     ],
+     [
+      0,
+      0,
+      33
+     ]
+    ]
+   },
+   "churn_quadrant": {
+    "true": 21,
+    "flagged": 18,
+    "hit": 18,
+    "precision": 1.0,
+    "recall": 0.857
+   },
+   "diagnostics_vs_latent_truth": {
+    "intent_precision": 1.0,
+    "intent_recall": 0.993,
+    "resolved_accuracy": 0.948,
+    "resolved_accuracy_by_intent": {
+     "balance": 0.961,
+     "payment": 0.935,
+     "escrow": 0.976,
+     "payoff": 0.902,
+     "hardship": 0.943,
+     "dispute": 0.956,
+     "late_fee": 0.967
+    },
+    "effort_exact_accuracy": {
+     "repeats": 0.997,
+     "transfers": 1.0,
+     "holds": 0.997,
+     "callback": 1.0
+    }
+   }
+  }
+ },
+ "noise_floor_run_to_run": {
+  "jev": {
+   "runs": [
+    "jev",
+    "jev-r2"
+   ],
+   "n_calls": 173,
+   "n_intents_compared": 311,
+   "csat_identical": 0.988,
+   "sentiment_identical": 0.994,
+   "resolved_identical": 0.99,
+   "csat_weighted_kappa_vs_adjudicated": [
+    0.858,
+    0.846
+   ],
+   "csat_kappa_spread": 0.012,
+   "sentiment_kappa_vs_adjudicated": [
+    0.784,
+    0.774
+   ],
+   "sentiment_kappa_spread": 0.009
+  },
+  "jev-qv2": {
+   "runs": [
+    "jev-qv2",
+    "jev-qv2-r2"
+   ],
+   "n_calls": 173,
+   "n_intents_compared": 312,
+   "csat_identical": 0.994,
+   "sentiment_identical": 1.0,
+   "resolved_identical": 0.997,
+   "csat_weighted_kappa_vs_adjudicated": [
+    0.838,
+    0.837
+   ],
+   "csat_kappa_spread": 0.001,
+   "sentiment_kappa_vs_adjudicated": [
+    0.725,
+    0.725
+   ],
+   "sentiment_kappa_spread": 0.0
+  }
+ },
+ "iterations": [
+  {
+   "before": "jev-qv2",
+   "after": "jev",
+   "n": 173,
+   "csat": {
+    "delta": 0.02,
+    "ci": [
+     -0.001,
+     0.049
+    ],
+    "p_improved": 0.962
+   },
+   "sentiment": {
+    "delta": 0.059,
+    "ci": [
+     0.008,
+     0.11
+    ],
+    "p_improved": 0.99
+   }
+  },
+  {
+   "before": "offline",
+   "after": "jev",
+   "n": 173,
+   "csat": {
+    "delta": -0.016,
+    "ci": [
+     -0.046,
+     0.011
+    ],
+    "p_improved": 0.125
+   },
+   "sentiment": {
+    "delta": -0.025,
+    "ci": [
+     -0.08,
+     0.033
+    ],
+    "p_improved": 0.209
+   }
+  }
+ ]
+}

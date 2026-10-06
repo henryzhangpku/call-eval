@@ -1,0 +1,131 @@
+{
+ "run_id": "offline",
+ "versions": {
+  "code_version": "0.1.0+nogit.dirty",
+  "extractor_backend": "offline",
+  "model_id": "rules-v1",
+  "question_version": "rules-v1",
+  "scoring_version": "score-v1",
+  "gate_version": "gate-v1",
+  "segmenter_version": "seg-v1",
+  "calibration_version": "iso-v1"
+ },
+ "calls": 400,
+ "scored": 344,
+ "review": 56,
+ "gate_failures": 53,
+ "wall_seconds_extract_and_score": 0.074,
+ "throughput_calls_per_s": 6330.9,
+ "calibration": {
+  "version": "iso-v1",
+  "n_survey_calls": 83,
+  "response_rate_by_bucket": {
+   "0": 0.369,
+   "1": 0.462,
+   "2": 0.323,
+   "3": 0.239,
+   "4": 0.294
+  },
+  "ece_raw": 0.105,
+  "ece_calibrated_oof": 0.142,
+  "ece_calibrated_oof_unweighted": 0.083,
+  "reliability_raw": [
+   {
+    "bin": 1,
+    "n": 3,
+    "mean_pred": 1.087,
+    "mean_obs": 1.333
+   },
+   {
+    "bin": 2,
+    "n": 20,
+    "mean_pred": 2.011,
+    "mean_obs": 1.95
+   },
+   {
+    "bin": 3,
+    "n": 21,
+    "mean_pred": 2.98,
+    "mean_obs": 2.762
+   },
+   {
+    "bin": 4,
+    "n": 10,
+    "mean_pred": 4.06,
+    "mean_obs": 4.2
+   },
+   {
+    "bin": 5,
+    "n": 29,
+    "mean_pred": 4.772,
+    "mean_obs": 4.8
+   }
+  ],
+  "reliability_calibrated": [
+   {
+    "bin": 1,
+    "n": 6,
+    "mean_pred": 1.308,
+    "mean_obs": 1.481
+   },
+   {
+    "bin": 2,
+    "n": 22,
+    "mean_pred": 1.986,
+    "mean_obs": 2.237
+   },
+   {
+    "bin": 3,
+    "n": 14,
+    "mean_pred": 3.061,
+    "mean_obs": 2.885
+   },
+   {
+    "bin": 4,
+    "n": 9,
+    "mean_pred": 4.008,
+    "mean_obs": 3.762
+   },
+   {
+    "bin": 5,
+    "n": 32,
+    "mean_pred": 4.765,
+    "mean_obs": 4.748
+   }
+  ],
+  "mapping": {
+   "xs": [
+    1.1772,
+    1.5905,
+    1.6765,
+    1.9143,
+    2.4058,
+    3.1213,
+    3.6617,
+    4.0,
+    4.1,
+    4.2845,
+    4.346,
+    4.5715,
+    5.0
+   ],
+   "ys": [
+    1.2633,
+    1.5,
+    1.5,
+    1.6667,
+    2.0714,
+    3.1538,
+    3.7325,
+    4.0,
+    4.5,
+    4.5,
+    4.5,
+    4.749,
+    4.8571
+   ]
+  },
+  "survey_mean_observed": 3.398,
+  "survey_mean_weighted": 3.61
+ }
+}

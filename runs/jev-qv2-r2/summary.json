@@ -1,0 +1,155 @@
+{
+ "run_id": "jev-r2",
+ "versions": {
+  "code_version": "0.1.0+0c77a46",
+  "extractor_backend": "jev",
+  "model_id": "jev-1.13.0",
+  "question_version": "q-v2",
+  "scoring_version": "score-v1",
+  "gate_version": "gate-v1",
+  "segmenter_version": "seg-v1",
+  "calibration_version": "iso-v1"
+ },
+ "calls": 200,
+ "scored": 173,
+ "review": 27,
+ "gate_failures": 27,
+ "wall_seconds_extract_and_score": 12.266,
+ "jev": {
+  "requests": 485,
+  "live_requests": 485,
+  "request_latency_ms_p50": 133.4,
+  "request_latency_ms_p95": 192.7,
+  "call_latency_ms_p50": 283.6,
+  "call_latency_ms_p95": 405.3,
+  "requests_per_call": 2.8,
+  "input_tokens_per_call": 4808.7,
+  "cost_per_call_usd": 0.000202,
+  "cost_per_20k_calls_usd": 4.04,
+  "price_per_m_input_usd": 0.042,
+  "price_checked": "2026-10-06",
+  "latency_source": "measured live",
+  "errors": 0
+ },
+ "live": {
+  "live_requests": 485,
+  "concurrency": 6,
+  "wall_seconds": 12.24,
+  "calls": 173,
+  "throughput_calls_per_s": 14.13,
+  "request_latency_ms_p50": 133.4,
+  "request_latency_ms_p95": 192.7
+ },
+ "calibration": {
+  "version": "iso-v1",
+  "n_survey_calls": 51,
+  "response_rate_by_bucket": {
+   "0": 0.471,
+   "1": 0.397,
+   "2": 0.283,
+   "3": 0.238,
+   "4": 0.265
+  },
+  "ece_raw": 0.266,
+  "ece_calibrated_oof": 0.222,
+  "ece_calibrated_oof_unweighted": 0.279,
+  "reliability_raw": [
+   {
+    "bin": 1,
+    "n": 3,
+    "mean_pred": 1.233,
+    "mean_obs": 1.333
+   },
+   {
+    "bin": 2,
+    "n": 12,
+    "mean_pred": 1.914,
+    "mean_obs": 2.583
+   },
+   {
+    "bin": 3,
+    "n": 13,
+    "mean_pred": 2.97,
+    "mean_obs": 2.846
+   },
+   {
+    "bin": 4,
+    "n": 6,
+    "mean_pred": 4.04,
+    "mean_obs": 4.333
+   },
+   {
+    "bin": 5,
+    "n": 17,
+    "mean_pred": 4.717,
+    "mean_obs": 4.827
+   }
+  ],
+  "reliability_calibrated": [
+   {
+    "bin": 1,
+    "n": 3,
+    "mean_pred": 1.0,
+    "mean_obs": 2.059
+   },
+   {
+    "bin": 2,
+    "n": 11,
+    "mean_pred": 2.142,
+    "mean_obs": 2.476
+   },
+   {
+    "bin": 3,
+    "n": 11,
+    "mean_pred": 3.013,
+    "mean_obs": 2.747
+   },
+   {
+    "bin": 4,
+    "n": 7,
+    "mean_pred": 3.984,
+    "mean_obs": 3.919
+   },
+   {
+    "bin": 5,
+    "n": 19,
+    "mean_pred": 4.79,
+    "mean_obs": 4.733
+   }
+  ],
+  "mapping": {
+   "xs": [
+    1.0,
+    1.262,
+    1.438,
+    1.526,
+    1.603,
+    2.2824,
+    2.788,
+    3.0927,
+    3.456,
+    3.757,
+    4.096,
+    4.5569,
+    4.9529
+   ],
+   "ys": [
+    1.0,
+    1.0,
+    2.0,
+    2.0,
+    2.0,
+    2.3832,
+    3.0,
+    3.2857,
+    4.0,
+    4.0,
+    4.4,
+    4.7096,
+    5.0
+   ]
+  },
+  "survey_mean_observed": 3.529,
+  "survey_mean_weighted": 3.709
+ }
+}

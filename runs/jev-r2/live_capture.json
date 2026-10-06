@@ -1,0 +1,9 @@
+{
+ "live_requests": 486,
+ "concurrency": 6,
+ "wall_seconds": 13.01,
+ "calls": 173,
+ "throughput_calls_per_s": 13.3,
+ "request_latency_ms_p50": 144.0,
+ "request_latency_ms_p95": 199.5
+}
