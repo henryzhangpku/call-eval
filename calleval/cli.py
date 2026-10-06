@@ -34,6 +34,10 @@ def _print_dev(report: dict) -> None:
         print(f"  run-to-run ({' vs '.join(nf['runs'])}, {nf['n_calls']} calls): CSAT identical {nf['csat_identical']}, "
               f"sentiment identical {nf['sentiment_identical']}, resolved identical {nf['resolved_identical']}, "
               f"CSAT kappa spread {nf['csat_kappa_spread']}")
+    for it in report.get("iterations", []):
+        print(f"  {it['after']} vs {it['before']} (paired bootstrap, {it['n']} calls): "
+              f"CSAT wk {it['csat']['delta']:+} {it['csat']['ci']}, sentiment k {it['sentiment']['delta']:+} "
+              f"{it['sentiment']['ci']}")
     print(f"  wrote {paths.RUNS / 'dev_report.json'}")
 
 

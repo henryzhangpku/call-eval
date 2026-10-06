@@ -29,7 +29,7 @@ from calleval.schema import (INTENT_LABELS, INTENTS, CallExtraction, Cue, Intent
 from calleval.segment import closing_turn, conversation_range, detect, segments_from_starts
 
 JEV_MODEL = "jev-1.13.0"  # pinned; the API default "jev-latest" moves
-QUESTION_VERSION = "q-v2"  # q-v1 -> q-v2: sharper intent definitions, per-type effort evidence (see METHODOLOGY.md)
+QUESTION_VERSION = "q-v3"  # history in METHODOLOGY.md: q-v1 smoke test, q-v2 baseline, q-v3 one dev iteration
 INTENT_THRESHOLD = 0.8
 
 INTENT_DEFS = {
@@ -83,7 +83,8 @@ def intent_questions(tr: Transcript, intent: str, lo: int, hi: int) -> dict:
         "resolved": {"type": "choice", "instructions":
                      f"Consider only the caller's {label} request. By the end of this part of the call, was it resolved? "
                      "Judge from the caller's side: if the agent says it is done but the caller disputes that, it is not resolved.",
-                     "criteria": {"yes": "fully handled on this call: the caller got the answer or the change they asked for",
+                     "criteria": {"yes": "fully handled on this call: the caller got the answer, or the change, plan, reversal or "
+                                         "payment was made or approved on the call (a confirmation still to be emailed is fine)",
                                   "partial": "partly handled, or deferred to a later step such as a review, a ticket, a "
                                              "document still to come, or a callback",
                                   "no": "not handled: refused, not possible, or the caller was left without an answer"}},
@@ -111,8 +112,10 @@ def intent_questions(tr: Transcript, intent: str, lo: int, hi: int) -> dict:
                           "Which turn tells the caller about a callback, by the company or by them?",
                           "criteria": turn_options(tr, lo, hi, None, "no callback mentioned")},
         "feeling": {"type": "choice", "instructions":
-                    f"From what the caller says while dealing with the {label}, how do they come across? Judge only "
-                    "their expressed words and tone, not whether the problem was solved.",
+                    f"From what the caller says while dealing with the {label}, how do they come across? Judge their "
+                    "reaction to the outcome and any explicit statement of feeling. Do not judge whether the problem "
+                    "was solved, and do not count having to repeat themselves as feeling: that is effort, scored "
+                    "separately, unless they also say they are upset.",
                     "criteria": {"happy": "pleased, relieved or warmly thankful",
                                  "mild": "neutral, matter-of-fact, or polite but not warm",
                                  "not_happy": "frustrated, annoyed, upset or complaining"}},

@@ -154,6 +154,29 @@ def run_to_run(run_a: str, run_b: str, ids: list[str]) -> dict | None:
             "sentiment_kappa_spread": round(abs(sa_k - sb_k), 3)}
 
 
+# dev-set iterations to compare, as (before, after)
+ITERATIONS = [("jev-qv2", "jev"), ("offline", "jev")]
+
+
+def paired_delta(run_a: str, run_b: str, gold: list[dict], n_boot: int = 2000, seed: int = 5) -> dict:
+    """Did run_b beat run_a? Paired bootstrap over the calls both scored: the CI of the difference."""
+    import random
+    pa, pb = load_predictions(run_a), load_predictions(run_b)
+    rows = [g for g in gold if pa.get(g["call_id"], {}).get("status") == "scored"
+            and pb.get(g["call_id"], {}).get("status") == "scored"]
+    def stat(ix, key, fn):
+        adj = [rows[i]["adj_csat" if key == "csat" else "adj_sentiment"] for i in ix]
+        return (fn([pb[rows[i]["call_id"]][key] for i in ix], adj) - fn([pa[rows[i]["call_id"]][key] for i in ix], adj))
+    out = {"before": run_a, "after": run_b, "n": len(rows)}
+    rng = random.Random(seed)
+    for key, fn in (("csat", wk), ("sentiment", sk)):
+        full = stat(range(len(rows)), key, fn)
+        boots = sorted(stat([rng.randrange(len(rows)) for _ in rows], key, fn) for _ in range(n_boot))
+        out[key] = {"delta": round(full, 3), "ci": [round(boots[int(0.025 * n_boot)], 3), round(boots[int(0.975 * n_boot)], 3)],
+                    "p_improved": round(sum(b > 0 for b in boots) / n_boot, 3)}
+    return out
+
+
 def available_runs() -> list[str]:
     if not paths.RUNS.exists():
         return []
@@ -170,10 +193,14 @@ def evaluate_dev(runs: list[str] | None = None) -> dict:
             continue
         report["runs"][r] = score_run(preds, gold, truth)
     ids = [g["call_id"] for g in gold]
-    for a, b in (("jev", "jev-r2"), ("offline", "offline-r2")):
+    names = available_runs()
+    for a, b in ((n, n + "-r2") for n in names if n + "-r2" in names):
         rr = run_to_run(a, b, ids)
         if rr:
             report.setdefault("noise_floor_run_to_run", {})[a] = rr
+    for old, new in ITERATIONS:
+        if old in report["runs"] and new in report["runs"]:
+            report.setdefault("iterations", []).append(paired_delta(old, new, gold))
     paths.RUNS.mkdir(parents=True, exist_ok=True)
     with open(paths.RUNS / "dev_report.json", "w", encoding="utf-8", newline="\n") as f:
         json.dump(report, f, indent=1)
