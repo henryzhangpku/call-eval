@@ -191,6 +191,8 @@ change. Throughput is not the constraint either: at the measured 13.6 calls/s wi
 
 ## Engineering the agent
 
+This tooling has been extracted into a reusable kit, [agent-starter](https://github.com/henryzhangpku/agent-starter); call-eval is its first worked example.
+
 The repository is set up for continued development with a coding agent (Claude Code), and the
 rules that matter are enforced by tooling rather than left to good intentions:
 
