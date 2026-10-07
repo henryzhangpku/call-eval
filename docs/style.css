@@ -239,3 +239,7 @@ mark.neg { background: var(--hl-neg); border-color: var(--ring-neg); }
 
 .foot { padding-top: 40px; padding-bottom: 40px; }
 .empty { color: var(--muted); padding: 40px 0; text-align: center; }
+
+.code-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.code-btn:hover { border-color: var(--text-2); }
+@media (max-width: 560px) { .code-btn span { display: none; } }
