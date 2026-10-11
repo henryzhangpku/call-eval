@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=20261011a">
 </head>
 <body>
 <header class="top">
@@ -89,6 +89,19 @@
       <li><span class="n">4</span><b>Score in code</b><span>Satisfaction from resolution and effort. Sentiment from what the caller said.</span></li>
       <li><span class="n">5</span><b>Calibrate</b><span>Map the score onto the survey scale, corrected for who answers surveys.</span></li>
     </ol>
+
+    <h3 class="h-sm">One pipeline, two interchangeable extractors</h3>
+    <p class="section-lede">Only step 3 changes. Both backends fill the same typed schema, so the gate, scoring, calibration and review queue are shared, and the two can be compared side by side on the same labels. The rules backend is the baseline the model has to beat, and it runs with no network or key.</p>
+    <div class="dual">
+      <div class="dual-pipe">
+        <span>transcript</span><i>&rarr;</i><span>quality gate</span><i>&rarr;</i><span>split by request</span><i>&rarr;</i><span class="hl">extract typed facts</span><i>&rarr;</i><span>score in code</span><i>&rarr;</i><span>calibrate</span><i>&rarr;</i><span>score + reason + evidence</span>
+      </div>
+      <div class="dual-backends">
+        <div class="be"><b>Backend A &middot; Jev</b><span>Narrow typed questions answered with probabilities, so every field carries a confidence.</span><dl><dt>Satisfaction (holdout)</dt><dd>0.85 &kappa;w</dd><dt>Sentiment (holdout)</dt><dd>0.82 &kappa;</dd><dt>Latency</dt><dd>293 ms p50 per call</dd><dt>Cost</dt><dd>$4.14 per 20,000 calls</dd></dl></div>
+        <div class="be"><b>Backend B &middot; Rules (offline)</b><span>Lexicons and patterns; no network, no key; the baseline.</span><dl><dt>Satisfaction (holdout)</dt><dd>0.85 &kappa;w</dd><dt>Sentiment (holdout)</dt><dd>0.87 &kappa;</dd><dt>Throughput</dt><dd>6,331 calls/s, one core</dd><dt>Cost</dt><dd>$0</dd></dl></div>
+      </div>
+      <p class="fine">They tie on this synthetic data because the rules' lexicons were written against the same generator. On real calls, which vary far more, the gap between them is the first thing to measure.</p>
+    </div>
 
     <h3 class="h-sm">Key decisions</h3>
     <p class="section-lede">From <a href="https://github.com/henryzhangpku/call-eval/blob/main/DECISIONS.md">DECISIONS.md</a>: what was chosen, what was rejected, and what would make us switch.</p>
