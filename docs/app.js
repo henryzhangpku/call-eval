@@ -349,7 +349,7 @@
     }).join("") + "</div>";
     if (p.v) {
       h += '<p class="fine" style="margin-top:14px">Row versions: ' + esc(p.v.extractor_backend + " · " + p.v.model_id + " · questions " +
-        p.v.question_version + " · " + p.v.scoring_version + " · code " + p.v.code_version) + "</p>";
+        p.v.question_version + " · " + p.v.scoring_version + " · code " + String(p.v.code_version).split("+")[0]) + "</p>";
     }
     $("callDetail").innerHTML = h;
   }
@@ -478,7 +478,7 @@
   function renderVersions() {
     $("versions").textContent = "Generated " + D.generated_at + " from seed " + D.seed + ". " + D.runs.map(function (r) {
       var v = D.versions[r];
-      return NAMES[r] + ": " + v.model_id + ", questions " + v.question_version + ", " + v.scoring_version + ", " + v.gate_version + ", code " + v.code_version;
+      return NAMES[r] + ": " + v.model_id + ", questions " + v.question_version + ", " + v.scoring_version + ", " + v.gate_version + ", code " + String(v.code_version).split("+")[0];
     }).join(" | ");
   }
 
