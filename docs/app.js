@@ -3,7 +3,7 @@
   "use strict";
 
   var D = null;
-  var state = { split: "dev", backend: null, calBackend: null, filter: "all", callId: null };
+  var state = { split: "holdout", backend: null, calBackend: null, filter: "all", callId: null };
   var NAMES = { offline: "Rules (offline)", jev: "Jev" };
   var INTENT = { balance: "Balance", payment: "Payment", escrow: "Escrow", payoff: "Payoff quote",
     hardship: "Hardship", dispute: "Dispute", late_fee: "Late fee" };
@@ -19,18 +19,42 @@
   function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
 
   /* ---------- theme ---------- */
+  // Light by default; dark only through the visible toggle, never from the system setting.
   (function theme() {
-    var saved = null;
-    try { saved = localStorage.getItem("calleval-theme"); } catch (e) { /* storage unavailable */ }
-    if (saved) document.documentElement.setAttribute("data-theme", saved);
-    $("themeBtn").addEventListener("click", function () {
-      var cur = document.documentElement.getAttribute("data-theme");
-      if (!cur) cur = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      var next = cur === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", next);
-      try { localStorage.setItem("calleval-theme", next); } catch (e) { /* ignore */ }
+    var root = document.documentElement, btn = $("themeBtn");
+    function label() {
+      var dark = root.getAttribute("data-theme") === "dark";
+      btn.setAttribute("aria-pressed", String(dark));
+      btn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+      btn.querySelector(".theme-label").textContent = dark ? "Light" : "Dark";
+    }
+    label();
+    btn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      if (next === "dark") root.setAttribute("data-theme", "dark"); else root.removeAttribute("data-theme");
+      try { localStorage.setItem("calleval-theme", next); } catch (e) { /* storage unavailable */ }
+      label();
       if (D) { renderReliability(); renderAgreement(); }
     });
+  })();
+
+  /* ---------- section nav: highlight the section in view ---------- */
+  (function sectionNav() {
+    var links = Array.prototype.slice.call(document.querySelectorAll("#sectionNav a"));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+    function update() {
+      var y = window.scrollY + 120, cur = 0;
+      secs.forEach(function (s, i) { if (s && s.offsetTop <= y) cur = i; });
+      if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) cur = secs.length - 1;
+      links.forEach(function (a, i) {
+        a.classList.toggle("active", i === cur);
+        if (i === cur) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current");
+      });
+    }
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    window.addEventListener("load", update);
+    update();
   })();
 
   /* ---------- tooltip ---------- */
@@ -57,43 +81,56 @@
     });
   }
 
-  /* ---------- tiles ---------- */
+  /* ---------- headline numbers, the main weakness beside them, operations ---------- */
+  function tile(k, v, d) { return '<div class="tile"><div class="k">' + k + '</div><div class="v">' + v + '</div><div class="d">' + d + "</div></div>"; }
+  function ci(a) { return a ? "[" + fmt(a[0]) + ", " + fmt(a[1]) + "]" : ""; }
+
   function renderTiles() {
     var p = D.primary, live = D.jev_live_capture, js = D.summary.jev ? D.summary.jev.jev : null;
     var hold = D.agreement.holdout[p], dev = D.agreement.dev[p];
-    var ag = (hold && hold.result) || dev, ceil = (hold && hold.ceiling) || D.ceiling;
-    var cal = D.calibration[p] || {};
-    var off = D.summary.offline;
+    var ag = (hold && hold.result) || dev, ceil = (hold && hold.ceiling) || D.ceiling, where = hold ? "sealed holdout" : "dev";
+    var cal = D.calibration[p] || {}, off = D.summary.offline, s = D.summary[p];
     var t = [];
-    if (js) {
-      t.push(["Jev latency per call", fmt(js.call_latency_ms_p50, 0) + "<small> ms p50</small>",
-        fmt(js.call_latency_ms_p95, 0) + " ms p95 &middot; " + js.requests_per_call + " requests per call, " +
-        fmt(js.request_latency_ms_p50, 0) + " ms each (p50)"]);
-    }
-    if (live) {
-      t.push(["Throughput (Jev)", fmt(live.throughput_calls_per_s, 1) + "<small> calls/s</small>",
-        "at concurrency " + live.concurrency + "; 20,000 calls in about " + Math.ceil(20000 / live.throughput_calls_per_s / 60) + " min"]);
-    }
-    if (off) t.push(["Throughput (rules)", Math.round(off.throughput_calls_per_s).toLocaleString() + "<small> calls/s</small>", "offline, one CPU core, no network"]);
     if (ag) {
-      t.push(["Satisfaction agreement", fmt(ag.csat_weighted_kappa_vs_adjudicated, 2) + "<small> wκ</small>",
-        "vs adjudicated labels; two humans agree at " + fmt(ceil.csat_weighted_kappa, 2) + " (" + (hold ? "sealed holdout" : "dev") + ", " + NAMES[p] + ")"]);
-      t.push(["Sentiment agreement", fmt(ag.sentiment_kappa_vs_adjudicated, 2) + "<small> κ</small>",
-        "vs adjudicated labels; two humans agree at " + fmt(ceil.sentiment_kappa, 2) + " (" + (hold ? "sealed holdout" : "dev") + ")"]);
+      t.push(tile("Satisfaction agreement", fmt(ag.csat_weighted_kappa_vs_adjudicated) + "<small>wκ</small>",
+        NAMES[p] + " vs the adjudicated label, 95% CI " + ci(ag.csat_weighted_kappa_vs_adjudicated_ci) + ". Two humans agree at " +
+        fmt(ceil.csat_weighted_kappa) + "; like for like, " + NAMES[p] + " vs one annotator is " + fmt(ag.csat_weighted_kappa_vs_annotators) + " (" + where + ")."));
+      t.push(tile("Sentiment agreement", fmt(ag.sentiment_kappa_vs_adjudicated) + "<small>κ</small>",
+        "vs the adjudicated label, 95% CI " + ci(ag.sentiment_kappa_vs_adjudicated_ci) + ". Two humans agree at " + fmt(ceil.sentiment_kappa) +
+        "; " + NAMES[p] + " vs one annotator is " + fmt(ag.sentiment_kappa_vs_annotators) + " (" + where + ")."));
     }
     if (cal.ece_calibrated_oof != null) {
-      t.push(["Calibration error", fmt(cal.ece_calibrated_oof, 2) + "<small> survey pts</small>",
-        "out of fold, from " + fmt(cal.ece_raw, 2) + " raw; " + cal.n_survey_calls + " survey calls"]);
+      t.push(tile("Calibration error", fmt(cal.ece_calibrated_oof) + "<small>survey pts</small>",
+        "Out of fold, down from " + fmt(cal.ece_raw) + " raw; fit on " + cal.n_survey_calls + " survey calls with response-bias weights."));
     }
     if (js) {
-      t.push(["Model cost, 20k calls", "$" + fmt(js.cost_per_20k_calls_usd, 2),
-        fmt(js.input_tokens_per_call, 0) + " input tokens per call at $" + js.price_per_m_input_usd + "/M (checked " + js.price_checked + ")"]);
+      t.push(tile("Model cost, 20,000 calls", "$" + fmt(js.cost_per_20k_calls_usd) + "<small>per night</small>",
+        Math.round(js.input_tokens_per_call).toLocaleString("en-US") + " input tokens per call at $" + js.price_per_m_input_usd + " per million (published price checked " + js.price_checked + ")."));
     }
-    var s = D.summary[p];
-    t.push(["Scored vs routed to review", s.scored + "<small> / " + s.review + "</small>", "of " + s.calls + " calls; bad transcripts are never scored"]);
-    $("tiles").innerHTML = t.map(function (x) {
-      return '<div class="tile"><div class="k">' + x[0] + '</div><div class="v">' + x[1] + '</div><div class="d">' + x[2] + "</div></div>";
-    }).join("");
+    $("tiles").innerHTML = t.join("");
+
+    // The main weakness, from the same measured data.
+    var w = "";
+    if (ag && ag.churn_quadrant) {
+      var cq = ag.churn_quadrant, oh = D.agreement.holdout.offline, ocq = oh && oh.result ? oh.result.churn_quadrant : null;
+      var dq = dev && dev.churn_quadrant;
+      w += '<p class="mono-label">Main weakness</p><h4>The quiet churn risk is under-found</h4>' +
+        '<div class="v">' + cq.hit + " / " + cq.true + "<small>found</small></div>" +
+        "<p>Polite callers whose problem was not solved, on the " + where + ": " + NAMES[p] + " finds " + Math.round(cq.recall * 100) +
+        "% of them, with precision " + fmt(cq.precision) + (ocq ? "; the rules find " + ocq.hit + " of " + ocq.true : "") + "." +
+        (dq ? " On dev, " + dq.hit + " of " + dq.true + "." : "") + " Raising this recall is first on the roadmap.</p>" +
+        '<p class="also">Also: the rule baseline is not worse than ' + NAMES[p] + " on this synthetic data (the paired dev difference is within noise), because its lexicons were written against the generator&rsquo;s templates.</p>";
+    }
+    $("weakness").innerHTML = w;
+
+    var o = [];
+    if (js) o.push(tile("Latency per call", fmt(js.call_latency_ms_p50, 0) + "<small>ms p50</small>",
+      fmt(js.call_latency_ms_p95, 0) + " ms p95; " + js.requests_per_call + " requests per call"));
+    if (live) o.push(tile("Throughput", fmt(live.throughput_calls_per_s, 1) + "<small>calls/s</small>",
+      "at concurrency " + live.concurrency + "; 20,000 calls in about " + Math.ceil(20000 / live.throughput_calls_per_s / 60) + " min"));
+    if (off) o.push(tile("Rules throughput", Math.round(off.throughput_calls_per_s).toLocaleString() + "<small>calls/s</small>", "offline, one CPU core, no network"));
+    o.push(tile("Scored / to review", s.scored + "<small>/ " + s.review + "</small>", "of " + s.calls + " calls; bad transcripts are never scored"));
+    $("opsTiles").innerHTML = o.join("");
   }
 
   /* ---------- agreement ---------- */
@@ -102,15 +139,15 @@
     return '<div class="bars">' + rows.map(function (r) {
       var v = Math.max(0, r[1]), lo = r[2] ? r[2][0] : null, hi = r[2] ? r[2][1] : null;
       var svg = '<svg viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true">' +
-        '<rect x="0" y="5" width="100" height="12" rx="2" fill="' + cssVar("--surface-2") + '"/>' +
-        '<rect x="0" y="5" width="' + (v * 100).toFixed(2) + '" height="12" rx="2" fill="' + cssVar(r[3]) + '"/>' +
+        '<rect x="0" y="5" width="100" height="12" rx="3" fill="' + cssVar("--surface-2") + '"/>' +
+        '<rect x="0" y="5" width="' + (v * 100).toFixed(2) + '" height="12" rx="3" fill="' + cssVar(r[3]) + '"/>' +
         (lo != null ? '<line x1="' + lo * 100 + '" x2="' + hi * 100 + '" y1="11" y2="11" stroke="' + cssVar("--text") + '" stroke-width="1.5" vector-effect="non-scaling-stroke"/>' +
           '<line x1="' + lo * 100 + '" x2="' + lo * 100 + '" y1="7" y2="15" stroke="' + cssVar("--text") + '" stroke-width="1.5" vector-effect="non-scaling-stroke"/>' +
           '<line x1="' + hi * 100 + '" x2="' + hi * 100 + '" y1="7" y2="15" stroke="' + cssVar("--text") + '" stroke-width="1.5" vector-effect="non-scaling-stroke"/>' : "") +
         "</svg>";
       return '<div class="bar-row" data-tip="' + esc(r[0] + ": " + fmt(r[1], 3) + (lo != null ? " (95% CI " + fmt(lo, 3) + " to " + fmt(hi, 3) + ")" : "")) + '">' +
         '<span class="lab">' + esc(r[0]) + '</span><span class="bar-track">' + svg + '</span><span class="val">' + fmt(r[1], 2) + "</span></div>";
-    }).join("") + '<div class="bar-row"><span></span><span class="fine" style="display:flex;justify-content:space-between"><span>0</span><span>0.5</span><span>1.0</span></span><span></span></div></div>';
+    }).join("") + '<div class="bar-row"><span></span><span class="axis-row"><span>0</span><span>0.5</span><span>1.0</span></span><span></span></div></div>';
   }
 
   function attachBarTips(root) {
@@ -139,8 +176,8 @@
         fmt(x.m.csat_weighted_kappa_vs_annotators) + " / κ " + fmt(x.m.sentiment_kappa_vs_annotators));
     });
     if (ceil) {
-      csat.unshift(["Annotator A vs B", ceil.csat_weighted_kappa, ceil.csat_weighted_kappa_ci, "--muted"]);
-      sent.unshift(["Annotator A vs B", ceil.sentiment_kappa, ceil.sentiment_kappa_ci, "--muted"]);
+      csat.unshift(["Annotator A vs B", ceil.csat_weighted_kappa, ceil.csat_weighted_kappa_ci, "--s-ceil"]);
+      sent.unshift(["Annotator A vs B", ceil.sentiment_kappa, ceil.sentiment_kappa_ci, "--s-ceil"]);
     }
     $("agreeCsat").innerHTML = csat.length ? barRows(csat) : '<p class="empty">Not evaluated on this split.</p>';
     $("agreeSent").innerHTML = sent.length ? barRows(sent) : '<p class="empty">Not evaluated on this split.</p>';
@@ -153,12 +190,12 @@
   function cmTable(title, cm, names) {
     var max = 0; cm.matrix.forEach(function (row) { row.forEach(function (v) { max = Math.max(max, v); }); });
     var steps = ["--seq-0", "--seq-1", "--seq-2", "--seq-3", "--seq-4", "--seq-5", "--seq-6"];
-    var h = '<div><h3>' + esc(title) + '</h3><table class="cm"><caption class="sr">rows adjudicated, columns predicted</caption><tr><th></th>' +
+    var h = '<div><h4>' + esc(title) + '</h4><table class="cm"><caption class="sr">rows adjudicated, columns predicted</caption><tr><th></th>' +
       cm.labels.map(function (l) { return "<th>" + esc(names ? names[l] : l) + "</th>"; }).join("") + "</tr>";
     cm.matrix.forEach(function (row, i) {
       h += "<tr><th>" + esc(names ? names[cm.labels[i]] : cm.labels[i]) + "</th>" + row.map(function (v) {
         var k = v === 0 ? 0 : 1 + Math.min(5, Math.floor(5 * v / max));
-        return '<td class="' + (k >= 4 ? "dark" : "") + '" style="background:var(' + steps[k] + ')">' + v + "</td>";
+        return '<td style="background:var(' + steps[k] + ');color:var(--on' + steps[k].slice(1) + ')">' + v + "</td>";
       }).join("") + "</tr>";
     });
     return h + '</table><p class="fine">Rows: adjudicated label. Columns: predicted.</p></div>';
@@ -192,7 +229,7 @@
       sents.forEach(function (s) {
         var v = q[b[0]][s], k = Math.min(4, Math.floor(4.999 * v / max));
         var risk = b[0] === "low" && s !== "not_happy";
-        h += '<div class="cell' + (risk ? " risk" : "") + '" style="background:var(' + steps[k] + ');color:' + (k >= 3 ? "#fff" : "var(--text)") +
+        h += '<div class="cell' + (risk ? " risk" : "") + '" style="background:var(' + steps[k] + ');color:var(--on' + steps[k].slice(1) + ')' +
           '" data-tip="' + esc("Satisfaction " + b[1] + ", sentiment " + SENT[s] + ": " + v + " calls") + '"><b>' + v + "</b><span>calls</span></div>";
       });
     });
@@ -272,8 +309,8 @@
     var c = byId[state.callId];
     if (!c) { $("callDetail").innerHTML = '<p class="empty">Select a call.</p>'; return; }
     var p = predOf(c), h = "";
-    h += '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between">' +
-      '<h3 style="margin:0;font-size:18px;font-family:var(--mono)">' + c.id + "</h3>" +
+    h += '<div class="detail-head">' +
+      "<h4>" + c.id + "</h4>" +
       '<div class="kv"><span><b>Agent</b> ' + c.agent + "</span><span><b>Date</b> " + c.date + "</span><span><b>Length</b> " +
       Math.round(c.dur / 60) + " min</span>" + (c.survey ? "<span><b>Survey</b> " + c.survey + "/5</span>" : "") + "</div></div>";
     if (c.gold) {
@@ -286,7 +323,7 @@
     } else {
       spans = p.spans;
       h += '<div class="scores"><div class="scorebox"><div class="kv"><b>Satisfaction</b>' + (p.churn ? '<span class="badge risk">churn risk</span>' : "") + "</div>" +
-        '<div class="big">' + p.csat + '<span class="muted" style="font-size:14px;font-weight:500"> / 5 &middot; raw ' + fmt(p.raw) +
+        '<div class="big">' + p.csat + '<span class="muted"> / 5 &middot; raw ' + fmt(p.raw) +
         (p.cal != null ? " &middot; calibrated " + fmt(p.cal) : "") + "</span></div>" +
         '<div class="why">' + esc(p.sx) + "</div></div>" +
         '<div class="scorebox"><div class="kv"><b>Sentiment</b></div><div class="big">' + SENT[p.sentiment] + "</div>" +
@@ -317,12 +354,48 @@
     $("callDetail").innerHTML = h;
   }
 
-  function openCall(id, filter) {
+  function openCall(id, filter, keepGuide) {
     state.callId = id;
     if (filter) { state.filter = filter; $("callFilter").value = filter; }
+    if (!keepGuide) markGuide(null);
     renderList(); renderDetail();
-    document.getElementById("explorer").scrollIntoView({ behavior: "smooth", block: "start" });
+    var cur = $("callList").querySelector('[aria-current="true"]');
+    if (cur) $("callList").scrollTop = cur.parentNode.offsetTop - $("callList").offsetTop;
+    $("explorer").scrollIntoView({ behavior: "smooth", block: "start" });
+    var ex = document.querySelector(".explorer");
+    ex.classList.remove("flash"); void ex.offsetWidth; ex.classList.add("flash");
   }
+
+  /* ---------- guided examples: real calls, chosen for what they show ---------- */
+  var GUIDES = [
+    { id: "C0252", filter: "dev", tone: "--good", label: "Clearly satisfied",
+      d: "A balance enquiry answered in one turn. Scored 5 and happy; both annotators gave 5 and the caller&rsquo;s survey says 5." },
+    { id: "C0379", filter: "churn", tone: "--risk", label: "Polite, but a churn risk",
+      d: "A hardship request turned down. The caller stays courteous, so sentiment is mild, but satisfaction is 2. Survey: 2." },
+    { id: "C0038", filter: "review", tone: "--warn", label: "Routed to human review",
+      d: "Garbled audio and low ASR confidence. The quality gate refuses to score it and sends it to a person, with the reasons." }
+  ];
+  function markGuide(id) {
+    $("guided").querySelectorAll(".guide").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-id") === id)); });
+  }
+  function renderGuides() {
+    var g = GUIDES.filter(function (x) { return byId[x.id]; });
+    $("guided").innerHTML = g.map(function (x) {
+      return '<button type="button" class="guide" aria-pressed="false" data-id="' + x.id + '">' +
+        '<span class="mono-label"><i class="dot" style="background:var(' + x.tone + ')"></i>' + x.id + "</span>" +
+        "<b>" + x.label + '</b><span class="d">' + x.d + '</span><span class="go">Open in explorer &rarr;</span></button>';
+    }).join("");
+    $("guided").querySelectorAll(".guide").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var x = GUIDES.filter(function (y) { return y.id === b.getAttribute("data-id"); })[0];
+        state.backend = D.primary;
+        seg($("backendTabs"), D.runs.map(function (r) { return [r, NAMES[r]]; }), state.backend, pickBackend);
+        markGuide(x.id);
+        openCall(x.id, x.filter, true);
+      });
+    });
+  }
+  function pickBackend(v) { state.backend = v; renderList(); renderDetail(); }
 
   /* ---------- reliability ---------- */
   function renderReliability() {
@@ -374,13 +447,13 @@
   /* ---------- review + rollups ---------- */
   function renderReview() {
     var rc = D.review_reason_counts, max = Math.max.apply(null, Object.values(rc).concat([1]));
-    $("reasonCounts").innerHTML = "<h3>Why calls are in the queue <span class=\"muted\">(" + D.review_queue.length + " calls, " + NAMES[D.primary] + ")</span></h3>" +
+    $("reasonCounts").innerHTML = "<h4>Why calls are in the queue <span class=\"muted\">(" + D.review_queue.length + " calls, " + NAMES[D.primary] + ")</span></h4>" +
       Object.keys(rc).map(function (k) {
         return '<div class="reason-bar"><span>' + esc(k) + '</span><span><div class="rb" style="width:' + (100 * rc[k] / max) + '%"></div></span><span class="n">' + rc[k] + "</span></div>";
       }).join("");
     var t = "<thead><tr><th>Call</th><th>Agent</th><th>Status</th><th>Reasons</th></tr></thead><tbody>" +
       D.review_queue.map(function (q) {
-        return '<tr class="clickable" data-id="' + q.call_id + '"><td style="font-family:var(--mono)">' + q.call_id + "</td><td>" + q.agent_id + "</td><td>" +
+        return '<tr class="clickable" data-id="' + q.call_id + '"><td class="id">' + q.call_id + "</td><td>" + q.agent_id + "</td><td>" +
           esc(q.kind) + "</td><td>" + esc(q.reasons.join("; ")) + "</td></tr>";
       }).join("") + "</tbody>";
     $("reviewTable").innerHTML = t;
@@ -392,7 +465,7 @@
   function renderRollups() {
     $("agentTable").innerHTML = "<thead><tr><th>Agent</th><th class=num>Scored</th><th class=num>Mean sat.</th><th class=num>Calibrated</th><th class=num>Unresolved</th><th class=num>Not happy</th><th class=num>Churn risk</th></tr></thead><tbody>" +
       D.by_agent.map(function (a) {
-        return "<tr><td>" + a.agent_id + "</td><td class=num>" + a.scored + "</td><td class=num>" + fmt(a.mean_csat) + "</td><td class=num>" + fmt(a.mean_calibrated) +
+        return "<tr><td class=id>" + a.agent_id + "</td><td class=num>" + a.scored + "</td><td class=num>" + fmt(a.mean_csat) + "</td><td class=num>" + fmt(a.mean_calibrated) +
           "</td><td class=num>" + Math.round(a.unresolved_intent_share * 100) + "%</td><td class=num>" + Math.round(a.not_happy_share * 100) + "%</td><td class=num>" + a.churn_risk + "</td></tr>";
       }).join("") + "</tbody>";
     $("intentTable").innerHTML = "<thead><tr><th>Intent</th><th class=num>n</th><th class=num>Resolved</th><th class=num>Partial</th><th class=num>No</th><th class=num>Mean score</th></tr></thead><tbody>" +
@@ -418,13 +491,14 @@
     D.calls.forEach(function (c) { byId[c.id] = c; });
     state.backend = D.primary; state.calBackend = D.primary;
     renderTiles();
-    seg($("splitTabs"), [["dev", "Dev (200)"], ["holdout", "Sealed holdout (100)"]], state.split, function (v) { state.split = v; renderAgreement(); });
+    seg($("splitTabs"), [["holdout", "Sealed holdout (100)"], ["dev", "Dev (200)"]], state.split, function (v) { state.split = v; renderAgreement(); });
     renderAgreement();
     renderQuadrant();
-    seg($("backendTabs"), D.runs.map(function (r) { return [r, NAMES[r]]; }), state.backend, function (v) { state.backend = v; renderList(); renderDetail(); });
+    seg($("backendTabs"), D.runs.map(function (r) { return [r, NAMES[r]]; }), state.backend, pickBackend);
+    renderGuides();
     seg($("calTabs"), D.runs.map(function (r) { return [r, NAMES[r]]; }), state.calBackend, function (v) { state.calBackend = v; renderReliability(); });
     $("callFilter").addEventListener("change", function (e) { state.filter = e.target.value; renderList(); });
-    state.callId = D.churn_risk_calls[0] || D.calls[0].id;
+    state.callId = byId[GUIDES[0].id] ? GUIDES[0].id : D.calls[0].id;
     renderList(); renderDetail();
     renderReliability(); renderReview(); renderRollups(); renderVersions();
   }).catch(function (e) {

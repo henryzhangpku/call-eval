@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Call Experience Evaluation</title>
+<title>call-eval: post-call satisfaction and sentiment you can audit</title>
 <meta name="description" content="Post-call customer experience evaluation for contact-centre transcripts: a model extracts typed facts with evidence spans, code scores them, and every score is calibrated against surveys. Synthetic demo data.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
@@ -22,153 +22,229 @@
 <meta name="twitter:description" content="Every call scored for satisfaction and sentiment, with the transcript lines behind each number. The model extracts, code scores, calibrated against surveys, measured against the human ceiling.">
 <meta name="twitter:image" content="https://henryzhangpku.github.io/call-eval/og.png">
 <meta name="author" content="Henry Zhang">
+<script>try { if (localStorage.getItem("calleval-theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) {}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="top">
   <div class="wrap top-inner">
-    <div class="brand">
+    <a class="brand" href="#problem">
       <span class="logo" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 5h16v10H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 10h2M12 10h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 5h16v10H9l-5 4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 10h2M12 10h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
       </span>
       <span>call-eval</span>
-    </div>
-    <nav class="nav" aria-label="Sections">
-      <a href="#measured">Measured</a>
-      <a href="#quadrant">Churn risk</a>
-      <a href="#explorer">Calls</a>
-      <a href="#calibration">Calibration</a>
-      <a href="#review">Review</a>
+    </a>
+    <nav class="nav" id="sectionNav" aria-label="Sections">
+      <a href="#problem">Problem</a>
+      <a href="#approach">Approach</a>
+      <a href="#results">Results</a>
+      <a href="#product">Product</a>
+      <a href="#limits">Limits</a>
     </nav>
-    <a class="code-btn" href="https://github.com/henryzhangpku/call-eval" target="_blank" rel="noopener" aria-label="Source code on GitHub"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Code</span></a>
-    <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-    </button>
+    <div class="top-actions">
+      <a class="btn" href="pitch.html">Deck</a>
+      <a class="btn" href="https://github.com/henryzhangpku/call-eval" target="_blank" rel="noopener" aria-label="Source code on GitHub"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Code</span></a>
+      <button class="btn theme-btn" id="themeBtn" type="button" aria-pressed="false" aria-label="Switch to dark theme">
+        <svg class="i-moon" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span class="theme-label">Dark</span>
+      </button>
+    </div>
   </div>
 </header>
 
 <main>
-  <section class="hero wrap">
-    <p class="eyebrow">Post-call customer experience evaluation &middot; lending and servicing calls</p>
-    <h1>Every call scored for satisfaction and sentiment, with the transcript lines that justify the score.</h1>
-    <p class="lede">A model reads each transcript and extracts typed facts: was each request resolved, how hard did the caller have to work, what did they say they felt. Code turns those facts into a 1&ndash;5 satisfaction score and a happy / mild / not happy sentiment, calibrates the score against post-call surveys, and keeps the evidence for every number.</p>
-    <p class="synthetic-note"><strong>All data on this page is synthetic.</strong> 400 generated calls, simulated annotators and simulated surveys. The numbers measure the system on that data, not on real callers.</p>
+  <!-- a. The problem -->
+  <section class="wrap hero" id="problem" aria-labelledby="problem-h">
+    <p class="eyebrow">01 &middot; The problem</p>
+    <h1 id="problem-h">Score every customer call for satisfaction and sentiment, and know how far to trust each score.</h1>
+    <p class="lede">For contact-centre operations and quality leads in lending and loan servicing. Today they hand-review a sliver of calls and hear back from the few customers who answer a survey, who skew unhappy. They need a score on every call, the transcript lines behind it, and an honest measure of how much it can be trusted.</p>
+    <p class="note"><span class="mono-label">Synthetic data</span> 400 generated calls, two simulated annotators and simulated surveys. Every number on this page measures the system on that data, not on real callers.</p>
   </section>
 
-  <section class="wrap" id="measured" aria-labelledby="measured-h">
-    <h2 id="measured-h">What it does, measured</h2>
-    <div class="tiles" id="tiles"></div>
-    <div class="pipeline" aria-label="Pipeline">
-      <div class="step"><b>Quality gate</b><span>speaker labels, ASR confidence, length, dropped calls</span></div>
-      <div class="arrow" aria-hidden="true"></div>
-      <div class="step"><b>Segment by intent</b><span>one call, several requests</span></div>
-      <div class="arrow" aria-hidden="true"></div>
-      <div class="step accent"><b>Extract</b><span>typed fields + evidence spans (Jev or rules)</span></div>
-      <div class="arrow" aria-hidden="true"></div>
-      <div class="step"><b>Score in code</b><span>satisfaction = f(resolved, effort); sentiment = g(expressed cues)</span></div>
-      <div class="arrow" aria-hidden="true"></div>
-      <div class="step"><b>Calibrate</b><span>isotonic fit to surveys, bias-weighted</span></div>
-    </div>
-  </section>
+  <!-- b. The approach -->
+  <section class="wrap" id="approach" aria-labelledby="approach-h">
+    <p class="eyebrow">02 &middot; The approach</p>
+    <h2 id="approach-h">A model extracts facts. Code turns them into scores.</h2>
 
-  <section class="wrap" id="agreement" aria-labelledby="agree-h">
-    <h2 id="agree-h">Agreement with humans, against the human ceiling</h2>
-    <p class="section-lede">Two annotators labelled 300 calls. How often they agree with each other is the ceiling: a system that agrees with a human as well as humans agree with each other has nothing left to gain from more prompt tuning. 200 calls were used to iterate; 100 were sealed and evaluated once per system (the ledger refuses a second look).</p>
-    <div class="seg" role="tablist" id="splitTabs">
-      <button role="tab" aria-selected="true" data-split="dev">Dev (200)</button>
-      <button role="tab" aria-selected="false" data-split="holdout">Sealed holdout (100)</button>
-    </div>
-    <div class="grid2">
-      <figure class="card">
-        <figcaption><b>Satisfaction 1&ndash;5</b> <span class="muted">quadratic-weighted kappa, 95% bootstrap CI</span></figcaption>
-        <div id="agreeCsat"></div>
-      </figure>
-      <figure class="card">
-        <figcaption><b>Sentiment</b> <span class="muted">Cohen&rsquo;s kappa, 95% bootstrap CI</span></figcaption>
-        <div id="agreeSent"></div>
-      </figure>
-    </div>
-    <p class="fine" id="agreeNote"></p>
-    <details class="card details">
-      <summary>Confusion matrices and the noise floor</summary>
-      <div class="grid2" id="confusions"></div>
-      <div id="noise" class="fine"></div>
-    </details>
-  </section>
-
-  <section class="wrap" id="quadrant" aria-labelledby="quad-h">
-    <h2 id="quad-h">The headline: satisfied is not the same as polite</h2>
-    <p class="section-lede">Satisfaction comes from resolution and effort; sentiment comes from what the caller expressed. Scoring them from separate evidence exposes the cell a single blended score hides: callers whose problem was not solved but who stayed polite. They do not complain on the call, and they are the churn risk.</p>
-    <div class="grid2 quad-grid">
-      <figure class="card">
-        <figcaption><b>Calls by satisfaction band and expressed sentiment</b> <span class="muted" id="quadBackend"></span></figcaption>
-        <div id="quadChart"></div>
-      </figure>
-      <div class="card churn-list">
-        <h3>Churn-risk calls <span class="count" id="churnCount"></span></h3>
-        <p class="muted small">Low satisfaction (1&ndash;2), sentiment happy or mild. Click one to open it.</p>
-        <ul id="churnList" class="chips"></ul>
+    <div class="grid2 approach-intro">
+      <div>
+        <h3 class="h-sm">What it does</h3>
+        <p>Each call gets a satisfaction score from 1 to 5 and a sentiment of happy, mild or not happy, each with a one-line explanation and the transcript lines that produced it. Calls too broken to score go to a human review queue instead. Scores roll up by agent, intent and day.</p>
+      </div>
+      <div>
+        <h3 class="h-sm">Why it is built this way</h3>
+        <p>A model asked for &ldquo;satisfaction, 1 to 5&rdquo; gives an opinion nobody can audit or retune. Here the model only answers narrow, typed questions (was the request resolved, how many times did the caller repeat themselves, which turn shows it). Deterministic code does the scoring, so every score is reproducible, explainable and testable.</p>
       </div>
     </div>
+
+    <h3 class="h-sm">How it works</h3>
+    <ol class="flow" aria-label="Pipeline">
+      <li><span class="n">1</span><b>Quality gate</b><span>Speaker labels, ASR confidence, length, dropped calls. Failures go to review, never scored.</span></li>
+      <li><span class="n">2</span><b>Split by request</b><span>One call often carries several requests; each is judged on its own turns.</span></li>
+      <li class="accent"><span class="n">3</span><b>Extract</b><span>Typed fields with evidence spans, from Jev or a rule-based backend.</span></li>
+      <li><span class="n">4</span><b>Score in code</b><span>Satisfaction from resolution and effort. Sentiment from what the caller said.</span></li>
+      <li><span class="n">5</span><b>Calibrate</b><span>Map the score onto the survey scale, corrected for who answers surveys.</span></li>
+    </ol>
+
+    <h3 class="h-sm">Key decisions</h3>
+    <p class="section-lede">From <a href="https://github.com/henryzhangpku/call-eval/blob/main/DECISIONS.md">DECISIONS.md</a>: what was chosen, what was rejected, and what would make us switch.</p>
+    <div class="card flush scroll-x">
+      <table class="tbl decisions">
+        <thead><tr><th>Decision</th><th>Chosen</th><th>Rejected</th><th>We would switch when</th></tr></thead>
+        <tbody>
+          <tr><td>Who produces the score</td><td>The model extracts typed fields; code scores</td><td>Ask the model for a 1&ndash;5 score directly</td><td>A directly elicited score beat the coded one against human labels on the sealed set, and we could still explain it in one line</td></tr>
+          <tr><td>Satisfaction vs sentiment</td><td>Separate evidence for each</td><td>One blended score</td><td>The polite-but-unresolved gap stopped predicting churn or complaints on real data</td></tr>
+          <tr><td>Evidence</td><td>Every field carries validated transcript spans; unsupported counts are dropped</td><td>Trust extracted fields as given</td><td>Never for scored fields; spans are how a disputed score is settled</td></tr>
+          <tr><td>Bad transcripts</td><td>Quality gate routes them to human review</td><td>Score everything with lower confidence</td><td>ASR quality improved enough that the gate&rsquo;s reasons rarely fire and reviewers agree the scores are usable</td></tr>
+          <tr><td>Multi-request calls</td><td>Score each request; worst-weighted roll-up (0.65 worst + 0.35 mean)</td><td>Score the call once</td><td>Surveys showed callers weigh requests evenly; the weights live in code and can be refit</td></tr>
+          <tr><td>Retrieval</td><td>No vector store, no retrieval</td><td>Embed transcripts and retrieve similar calls or policy text</td><td>Scoring needed outside facts, such as whether the agent quoted the right policy</td></tr>
+          <tr><td>Calibration</td><td>Weighted isotonic regression, error measured out of fold</td><td>Platt or ordinal logistic, linear rescaling</td><td>Real survey volume was large enough per band that a smoother parametric fit had lower out-of-fold error</td></tr>
+          <tr><td>Model backend</td><td>Jev: typed answers with probabilities, behind an interface with a rule-based backend</td><td>A general LLM with prompt-and-parse</td><td>Another backend matched agreement on the sealed set at similar cost and latency; the interface makes it a swap</td></tr>
+          <tr><td>Evaluation</td><td>200 dev / 100 sealed holdout, read once per run and ledgered; bootstrap and run-to-run noise floors</td><td>Iterate and report on the same labelled set</td><td>Never; the holdout is replaced with fresh labelled calls, not reused</td></tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
-  <section class="wrap" id="explorer" aria-labelledby="exp-h">
-    <h2 id="exp-h">Call explorer</h2>
-    <p class="section-lede">Pick a call to read the transcript with its evidence highlighted, and the one-line explanation code generated for each score.</p>
-    <div class="explorer card">
-      <div class="exp-side">
-        <div class="filters">
-          <label class="sr" for="callFilter">Filter calls</label>
-          <select id="callFilter">
-            <option value="all">All calls</option>
-            <option value="churn">Churn risk</option>
-            <option value="review">In review queue</option>
-            <option value="dev">Dev set (has human labels)</option>
-            <option value="multi">Multi-intent</option>
-            <option value="disagree">Backends disagree</option>
-          </select>
-          <div class="seg small" role="tablist" id="backendTabs"></div>
+  <!-- c. Results -->
+  <section class="wrap" id="results" aria-labelledby="results-h">
+    <p class="eyebrow">03 &middot; Results</p>
+    <h2 id="results-h">At the human ceiling on satisfaction. Weak on finding the quiet churn risk.</h2>
+    <p class="section-lede">Measured on the sealed holdout of 100 calls, evaluated once per system, unless marked otherwise. Intervals are 95% bootstrap over calls.</p>
+    <div class="headline">
+      <div class="tiles" id="tiles"></div>
+      <aside class="card weakness" id="weakness" aria-label="Main weakness"></aside>
+    </div>
+    <div class="tiles ops" id="opsTiles"></div>
+
+    <div class="sub" id="agreement" aria-labelledby="agree-h">
+      <h3 class="h-md" id="agree-h">Agreement with humans, against the human ceiling</h3>
+      <p class="section-lede">Two annotators labelled 300 calls. How often they agree with each other is the ceiling: a system that agrees with a human as well as humans agree with each other has nothing left to gain from more prompt tuning. 200 calls were used to iterate; 100 were sealed and evaluated once per system (the ledger refuses a second look).</p>
+      <div class="seg" role="tablist" id="splitTabs"></div>
+      <div class="grid2">
+        <figure class="card">
+          <figcaption><b>Satisfaction 1&ndash;5</b> <span class="muted">quadratic-weighted kappa, 95% CI</span></figcaption>
+          <div id="agreeCsat"></div>
+        </figure>
+        <figure class="card">
+          <figcaption><b>Sentiment</b> <span class="muted">Cohen&rsquo;s kappa, 95% CI</span></figcaption>
+          <div id="agreeSent"></div>
+        </figure>
+      </div>
+      <p class="fine" id="agreeNote"></p>
+      <details class="card details">
+        <summary>Confusion matrices and the noise floor</summary>
+        <div class="grid2" id="confusions"></div>
+        <div id="noise" class="fine"></div>
+      </details>
+    </div>
+
+    <div class="sub" id="quadrant" aria-labelledby="quad-h">
+      <h3 class="h-md" id="quad-h">Satisfied is not the same as polite</h3>
+      <p class="section-lede">Satisfaction comes from resolution and effort; sentiment comes from what the caller expressed. Scoring them from separate evidence exposes the cell a single blended score hides: callers whose problem was not solved but who stayed polite. They do not complain on the call, and they are the churn risk.</p>
+      <div class="grid2 quad-grid">
+        <figure class="card">
+          <figcaption><b>Calls by satisfaction band and expressed sentiment</b> <span class="muted" id="quadBackend"></span></figcaption>
+          <div id="quadChart"></div>
+        </figure>
+        <div class="card churn-list">
+          <h4>Churn-risk calls <span class="count" id="churnCount"></span></h4>
+          <p class="muted small">Satisfaction 1&ndash;2 with sentiment happy or mild. Select one to open it in the explorer.</p>
+          <ul id="churnList" class="chips"></ul>
         </div>
-        <ul class="call-list" id="callList" aria-label="Calls"></ul>
       </div>
-      <div class="exp-main" id="callDetail" aria-live="polite"></div>
+    </div>
+
+    <div class="sub" id="calibration" aria-labelledby="cal-h">
+      <h3 class="h-md" id="cal-h">Calibration: a score is a ranking until it is anchored</h3>
+      <p class="section-lede">The raw score is fit to post-call survey answers with a monotone (isotonic) map. Unhappy callers answer surveys more often, so each answer is weighted by the inverse response rate of its score band. Error is measured out of fold, never on the calls used to fit.</p>
+      <div class="grid2">
+        <figure class="card">
+          <figcaption><b>Reliability diagram</b> <span class="muted">mean predicted vs mean survey score, per band</span></figcaption>
+          <div class="seg small" role="tablist" id="calTabs"></div>
+          <div id="relChart"></div>
+        </figure>
+        <div class="card" id="calFacts"></div>
+      </div>
     </div>
   </section>
 
-  <section class="wrap" id="calibration" aria-labelledby="cal-h">
-    <h2 id="cal-h">Calibration: a score is a ranking until it is anchored</h2>
-    <p class="section-lede">The raw score is fit to post-call survey answers with a monotone (isotonic) map. Unhappy callers answer surveys more often, so each answer is weighted by the inverse response rate of its score band. Error is measured out of fold, never on the calls used to fit.</p>
-    <div class="grid2">
-      <figure class="card">
-        <figcaption><b>Reliability diagram</b> <span class="muted">mean predicted vs mean survey score, per band</span></figcaption>
-        <div class="seg small" role="tablist" id="calTabs"></div>
-        <div id="relChart"></div>
-      </figure>
-      <div class="card" id="calFacts"></div>
+  <!-- d. The product -->
+  <section class="wrap" id="product" aria-labelledby="product-h">
+    <p class="eyebrow">04 &middot; The product</p>
+    <h2 id="product-h">Every score opens onto the lines that produced it.</h2>
+    <p class="section-lede">Start with a guided example, or browse all 400 calls. Evidence is highlighted in the transcript, and each score carries the one-line explanation code generated for it.</p>
+    <div class="guided" id="guided" role="group" aria-label="Guided examples"></div>
+
+    <div class="sub" id="explorer" aria-labelledby="exp-h">
+      <h3 class="h-md" id="exp-h">Call explorer</h3>
+      <div class="explorer card">
+        <div class="exp-side">
+          <div class="filters">
+            <label class="sr" for="callFilter">Filter calls</label>
+            <select id="callFilter">
+              <option value="all">All calls</option>
+              <option value="churn">Churn risk</option>
+              <option value="review">In review queue</option>
+              <option value="dev">Dev set (has human labels)</option>
+              <option value="multi">Multi-request</option>
+              <option value="disagree">Backends disagree</option>
+            </select>
+            <div class="seg small" role="tablist" id="backendTabs"></div>
+          </div>
+          <ul class="call-list" id="callList" aria-label="Calls"></ul>
+        </div>
+        <div class="exp-main" id="callDetail" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="sub" id="review" aria-labelledby="rev-h">
+      <h3 class="h-md" id="rev-h">Human review queue</h3>
+      <p class="section-lede">Bad transcripts produce confident garbage, so they are never scored. Scored calls with low extraction confidence, or where the agent claimed a fix the caller disputed, are flagged for a look.</p>
+      <div class="grid2">
+        <div class="card" id="reasonCounts"></div>
+        <div class="card flush scroll-card"><table class="tbl" id="reviewTable"><caption class="sr">Review queue</caption></table></div>
+      </div>
+    </div>
+
+    <div class="sub" id="rollups" aria-labelledby="roll-h">
+      <h3 class="h-md" id="roll-h">Roll-ups</h3>
+      <div class="grid2">
+        <div class="card flush scroll-card"><h4 class="tbl-h">By agent</h4><table class="tbl" id="agentTable"></table></div>
+        <div class="card flush scroll-card"><h4 class="tbl-h">By intent</h4><table class="tbl" id="intentTable"></table></div>
+      </div>
     </div>
   </section>
 
-  <section class="wrap" id="review" aria-labelledby="rev-h">
-    <h2 id="rev-h">Human review queue</h2>
-    <p class="section-lede">Bad transcripts produce confident garbage, so they are never scored. Scored calls with low extraction confidence, or where the agent claimed a fix the caller disputed, are flagged for a look.</p>
+  <!-- e. Limits and next steps -->
+  <section class="wrap" id="limits" aria-labelledby="limits-h">
+    <p class="eyebrow">05 &middot; Limits and next steps</p>
+    <h2 id="limits-h">What this does not show yet</h2>
     <div class="grid2">
-      <div class="card" id="reasonCounts"></div>
-      <div class="card scroll-card"><table class="tbl" id="reviewTable"><caption class="sr">Review queue</caption></table></div>
-    </div>
-  </section>
-
-  <section class="wrap" id="rollups" aria-labelledby="roll-h">
-    <h2 id="roll-h">Roll-ups</h2>
-    <div class="grid2">
-      <div class="card scroll-card"><h3>By agent</h3><table class="tbl" id="agentTable"></table></div>
-      <div class="card scroll-card"><h3>By intent</h3><table class="tbl" id="intentTable"></table></div>
+      <ul class="limits card">
+        <li><b>Synthetic data.</b> Calls come from a closed set of templates with ASR noise on top, so agreement numbers are optimistic for any extractor. On real calls the human ceiling will be lower than 0.85 and must be measured.</li>
+        <li><b>The rules are not a result.</b> The rule-based extractor matches Jev here because its lexicons were written against the same templates. The paired dev difference is within noise; on real paraphrase expect the rules to fall away.</li>
+        <li><b>The quiet churn risk is under-found.</b> Polite, unresolved callers are flagged with no false alarms on the holdout, but most are missed.</li>
+        <li><b>Calibration rests on 83 surveys.</b> It helps the Jev scores and slightly hurts the rule scores, whose raw scale was already close. Until calibrated error is clearly below raw, publish buckets, not numbers.</li>
+        <li><b>Adjudication is simulated</b> as recovering the true label. The like-for-like comparison (system vs one annotator) does not depend on it.</li>
+        <li><b>One disclosed leak.</b> An eight-call smoke test of the first question version included two holdout calls; the changes that followed were generic. Details in <a href="https://github.com/henryzhangpku/call-eval/blob/main/METHODOLOGY.md">METHODOLOGY.md</a>.</li>
+      </ul>
+      <div class="roadmap">
+        <div class="card road"><p class="mono-label">Now</p><ul><li>Raise churn-risk recall: inspect missed dev calls, change one thing, keep it only if a paired comparison clears both noise floors.</li><li>Tighten Jev intent precision: require a caller turn the model cites before a model-only request is scored.</li></ul></div>
+        <div class="card road"><p class="mono-label">Next</p><ul><li>Score-distribution drift alert against a reference window.</li><li>A full night of about 20,000 calls in shadow, published as buckets until the reliability diagram sits near the diagonal.</li></ul></div>
+        <div class="card road"><p class="mono-label">Later</p><ul><li>Replace synthetic data with a frozen sample of real calls and real annotators; measure the ceiling before any extraction work.</li><li>Fit calibration on real surveys and recalibrate on a schedule.</li></ul></div>
+      </div>
     </div>
   </section>
 </main>
 
 <footer class="wrap foot">
   <p id="versions" class="fine"></p>
-  <p class="fine">Source, method and tests: <a href="https://github.com/henryzhangpku/call-eval">github.com/henryzhangpku/call-eval</a>.</p>
+  <p class="fine">Source, method and tests: <a href="https://github.com/henryzhangpku/call-eval">github.com/henryzhangpku/call-eval</a> &middot; <a href="pitch.html">Deck</a></p>
   <p class="fine">Synthetic data. Jev latency and token counts were measured against the live API; replays read them from the committed cache. Prices change: verify on the day. MIT licence.</p>
 </footer>
 <script src="app.js"></script>

@@ -16,7 +16,10 @@ a System One model that answers typed questions with probabilities rather than p
 > simulated surveys. The measurements below describe the system on that data, not on real callers.
 
 **Demo:** `docs/` is a static site (no build step). Run `python -m http.server -d docs` and open
-http://localhost:8000, or publish the folder with GitHub Pages.
+http://localhost:8000, or publish the folder with GitHub Pages. The page reads as a short report
+(problem, approach, results with the main weakness, the product with three guided example calls,
+limits and roadmap). `docs/pitch.html` is an eight-slide deck in the same look (arrow keys or
+click), linked from the page header.
 
 ## What it proves, measured
 
