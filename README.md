@@ -15,13 +15,15 @@ a System One model that answers typed questions with probabilities rather than p
 > **All data in this repository is synthetic.** 400 generated calls, two simulated annotators,
 > simulated surveys. The measurements below describe the system on that data, not on real callers.
 
-**Demo:** `docs/` is a static site (no build step). Run `python -m http.server -d docs` and open
+**Live demo:** https://henryzhangpku.github.io/call-eval/ (deck: [pitch.html](https://henryzhangpku.github.io/call-eval/pitch.html)).
+
+`docs/` is a static site (no build step). Run `python -m http.server -d docs` and open
 http://localhost:8000, or publish the folder with GitHub Pages. The page reads as a short report
 (problem, approach, results with the main weakness, the product with three guided example calls,
 limits and roadmap). `docs/pitch.html` is an eight-slide deck in the same look (arrow keys or
 click), linked from the page header.
 
-## What it proves, measured
+## Measured results (synthetic data)
 
 Measured on 400 synthetic calls. Agreement uses the 200-call dev split for iteration and a
 100-call holdout that was evaluated **once per system** (hashes in `runs/holdout_ledger.json`).
@@ -36,6 +38,11 @@ Intervals are 95% bootstrap over calls.
 | Rules (offline), satisfaction vs adjudicated label | 0.874 [0.833, 0.905] | 0.848 [0.781, 0.896] |
 | Rules (offline), sentiment vs adjudicated label | 0.808 [0.734, 0.882] | 0.871 [0.782, 0.962] |
 | Like for like with the ceiling: system vs a single annotator, satisfaction (Jev / rules) | 0.760 / 0.757 | 0.761 / 0.751 |
+
+Why the system can score above the human ceiling on sentiment: the adjudicated label is the
+simulated truth and each annotator adds noise to it, so "system vs adjudicated" and "annotator vs
+annotator" are not the same comparison. The fair comparison is system vs a single annotator (shown
+for satisfaction).
 | Coverage: share of labelled calls that passed the quality gate and were scored | 86.5% | 85% (Jev), 84% (rules) |
 
 | Operations (Jev backend, model `jev-1.13.0`, measured against the live API) | |
@@ -47,7 +54,7 @@ Intervals are 95% bootstrap over calls.
 | Input tokens per call | 4,923 |
 | Model cost per call / per 20,000 calls | $0.00021 / **$4.14** (at $0.042 per million input tokens, output free; published price checked 2026-10-06, verify on the day) |
 | Run-to-run noise (same model, same questions, run twice on dev) | 98.8% identical satisfaction, 99.4% identical sentiment, kappa spread 0.012 |
-| Rule-based throughput | about 6,300 calls/s on one core |
+| Rule-based throughput | 6,331 calls/s on one core |
 
 | Calibration (isotonic, fit on 83 non-holdout survey calls, error measured out of fold) | raw | calibrated |
 |---|---|---|
